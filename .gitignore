@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Next.js build outputs
+.next/
+out/
+build/
+dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# User uploads & cache
+uploads/*
+!uploads/.gitkeep
+
+# Downloaded source media for the open-media importer
+.media-cache/
+.venv-old-dell/
+
+# Local tools and work files (not part of the app)
+.claude/
+.archify/
+.tools/
+tools/ai-drawings/*.zip
+frontend-prebuilt-backup/
+*.tsbuildinfo
+# Hidden 3D test renders (not shown in the app)
+frontend/public/exercise-media/gymai3d/
