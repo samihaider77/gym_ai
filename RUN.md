@@ -27,7 +27,7 @@ Postgres listens on `127.0.0.1:5433` (see `backend/.env`).
 ```bash
 cd backend
 uv venv .venv --python 3.12
-uv pip install -p .venv/Scripts/python.exe -r requirements.txt
+uv pip install -p .venv/Scripts/python.exe -r requirements-scripts.txt
 .venv/Scripts/python.exe -m alembic upgrade head
 .venv/Scripts/python.exe scripts/seed_exercises.py
 .venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000

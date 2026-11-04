@@ -1,0 +1,4 @@
+# The API's packages plus what the media import scripts (scripts/) need. Not used by the deployed API.
+-r requirements.txt
+Pillow>=10.3.0,<13.0.0
+imageio-ffmpeg>=0.6.0,<0.7.0

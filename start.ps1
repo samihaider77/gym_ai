@@ -32,10 +32,10 @@ if ($firstBackend) {
     Push-Location $backend
     if (Get-Command uv -ErrorAction SilentlyContinue) {
         if (-not (Test-Path $python)) { uv venv .venv --python 3.12 }
-        uv pip install -p $python -r requirements.txt
+        uv pip install -p $python -r requirements-scripts.txt
     } else {
         if (-not (Test-Path $python)) { python -m venv .venv }
-        & $python -m pip install -r requirements.txt
+        & $python -m pip install -r requirements-scripts.txt
     }
     Check 'Installing backend dependencies'
     Pop-Location
