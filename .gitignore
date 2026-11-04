@@ -50,7 +50,7 @@ uploads/*
 .claude/
 .archify/
 .tools/
-tools/ai-drawings/*.zip
+tools/
 frontend-prebuilt-backup/
 *.tsbuildinfo
 # Hidden 3D test renders (not shown in the app)
