@@ -1,6 +1,7 @@
-from typing import List, Union
-from pydantic import AnyHttpUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import json
+from typing import Annotated, List, Union
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -10,11 +11,22 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     API_V1_STR: str = "/api/v1"
 
-    # CORS Origins
-    CORS_ORIGINS: List[Union[str, AnyHttpUrl]] = [
+    # CORS Origins. The env var may be a JSON list or comma-separated; a typo here must not stop the API starting.
+    CORS_ORIGINS: Annotated[List[str], NoDecode] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value):
+        if isinstance(value, str):
+            text = value.strip()
+            try:
+                value = json.loads(text.replace("'", '"')) if text.startswith("[") else text.split(",")
+            except json.JSONDecodeError:
+                value = text.strip("[]").split(",")
+        return [str(origin).strip().strip("'\"").rstrip("/") for origin in value if str(origin).strip()]
 
     # JWT Security Configurations
     JWT_SECRET_KEY: str = "gym_ai_super_secret_jwt_key_change_in_production_2026"
