@@ -1,6 +1,8 @@
 import type { User } from './types';
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+// Empty by default: the browser calls /api/v1 on the frontend's own address and next.config.js forwards it to
+// the backend, so no CORS setup is needed. NEXT_PUBLIC_API_URL still points straight at a backend if set.
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const TOKEN_KEY = 'gymai.token';
 const USER_KEY = 'gymai.user';
 
@@ -57,7 +59,7 @@ export async function api<T>(
   path: string,
   options: { method?: string; body?: unknown; query?: Query; signal?: AbortSignal } = {},
 ): Promise<T> {
-  const url = new URL(`${API_URL}/api/v1${path}`);
+  const url = new URL(`${API_URL}/api/v1${path}`, typeof window === 'undefined' ? 'http://localhost' : window.location.origin);
   Object.entries(options.query ?? {}).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
   });
@@ -75,7 +77,7 @@ export async function api<T>(
     });
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error;
-    throw new ApiError('Can’t reach the server. Is the backend running on port 8000?', 0);
+    throw new ApiError('Can’t reach the server. Check your connection and try again.', 0);
   }
   if (response.status === 401 && token) {
     session.clear();
