@@ -17,6 +17,10 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
+    # Also allowed in production: every Vercel address of the gym-ai frontend project (production, git branch and
+    # per-deployment URLs), so a new deployment never needs CORS_ORIGINS updated.
+    CORS_ORIGIN_REGEX: str = r"^https://gym-ai(-[a-z0-9-]+)?\.vercel\.app$"
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, value):

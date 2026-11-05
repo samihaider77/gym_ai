@@ -36,7 +36,8 @@ if settings.CORS_ORIGINS:
         allow_origins=[str(origin) for origin in settings.CORS_ORIGINS],
         # Next.js may move to another local port when 3000 is occupied.
         # Keep this development-only convenience separate from production origins.
-        allow_origin_regex=(r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$" if settings.ENVIRONMENT == "development" else None),
+        allow_origin_regex=(r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$" if settings.ENVIRONMENT == "development"
+                            else settings.CORS_ORIGIN_REGEX or None),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
