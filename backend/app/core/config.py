@@ -18,8 +18,11 @@ class Settings(BaseSettings):
     ]
 
     # Also allowed in production: every Vercel address of the gym-ai frontend project (production, git branch and
-    # per-deployment URLs), so a new deployment never needs CORS_ORIGINS updated.
-    CORS_ORIGIN_REGEX: str = r"^https://gym-ai(-[a-z0-9-]+)?\.vercel\.app$"
+    # per-deployment URLs; Vercel shortens deployment URLs to e.g. gym-gosglpd59-<team>.vercel.app), so a new
+    # deployment never needs CORS_ORIGINS updated.
+    CORS_ORIGIN_REGEX: str = (
+        r"^https://(gym-ai(-[a-z0-9-]+)?|gym-[a-z0-9-]*-ghostsami96-9088s-projects)\.vercel\.app$"
+    )
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
