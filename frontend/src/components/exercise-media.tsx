@@ -108,19 +108,13 @@ export function ExerciseThumb({ exercise, className }: { exercise: Exercise; cla
   );
 }
 
-function licenseLink(attribution: string | null) {
-  const match = attribution?.match(/\((https?:\/\/[^)]+)\)\s*$/);
-  const text = attribution?.replace(/\s*\(https?:\/\/[^)]+\)\s*$/, '').replace(/^“[^”]*”\s*/, '') ?? '';
-  return { text: text.charAt(0).toUpperCase() + text.slice(1), url: match?.[1] ?? null };
-}
-
 function sourceLabel(media: ExerciseMedia) {
   if (media.camera_angle === 'Real video') return 'Video';
   if (isVideo(media)) return 'Animation';
   return 'Photo';
 }
 
-/** Full-size player with source switcher, playback controls and licence credit. */
+/** Full-size player with source switcher and playback controls. Credits for every demo live on /credits. */
 export function ExercisePlayer({ exercise }: { exercise: Exercise }) {
   const all = useMemo(() => visibleMedia(exercise), [exercise]);
   const [failed, setFailed] = useState<string[]>([]);
@@ -141,8 +135,6 @@ export function ExercisePlayer({ exercise }: { exercise: Exercise }) {
     if (el.paused) el.play().catch(() => {});
     else el.pause();
   };
-
-  const credit = licenseLink(media?.attribution ?? null);
 
   return (
     <figure className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
@@ -246,20 +238,6 @@ export function ExercisePlayer({ exercise }: { exercise: Exercise }) {
             </div>
           )}
         </div>
-      )}
-
-      {media?.attribution && (
-        <figcaption className="border-t border-line bg-sunken/50 px-4 py-2.5 text-xs leading-relaxed text-muted">
-          {credit.text}
-          {credit.url && (
-            <>
-              {' '}
-              <a href={credit.url} target="_blank" rel="noreferrer" className="font-medium text-ink underline-offset-2 hover:underline">
-                View licence
-              </a>
-            </>
-          )}
-        </figcaption>
       )}
     </figure>
   );

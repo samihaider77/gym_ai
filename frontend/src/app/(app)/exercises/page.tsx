@@ -40,6 +40,11 @@ function Library() {
   const [showFilters, setShowFilters] = useState(false);
   // True while new filters are applied to the URL (a route change); the list fetch follows it.
   const [navigating, startNavigation] = useTransition();
+  // The URL the last filter change asked for. Set in the same click, so the loading state shows at once,
+  // even before the route change starts (on Vercel it can take a second or two).
+  const [requested, setRequested] = useState<string | null>(null);
+  const current = params.toString();
+  useEffect(() => setRequested(null), [current]);
 
   const search = params.get('q') ?? '';
   const muscle = params.get('muscle') ?? '';
@@ -53,6 +58,7 @@ function Library() {
     const next = new URLSearchParams(params.toString());
     Object.entries(changes).forEach(([key, value]) => (value ? next.set(key, value) : next.delete(key)));
     if (resetPage) next.delete('page');
+    if (next.toString() !== current) setRequested(next.toString());
     startNavigation(() => router.replace(`${pathname}${next.toString() ? `?${next}` : ''}`, { scroll: false }));
   };
 
@@ -78,7 +84,7 @@ function Library() {
     is_active: true,
   };
   const list = useApi<Paginated<Exercise>>('/exercises', { query }, [JSON.stringify(query)]);
-  const busy = navigating || list.loading;
+  const busy = requested !== null || navigating || list.loading;
   const { page: _page, page_size: _size, ...facetQuery } = query;
   const facets = useApi<Facets>('/exercises/facets', { query: facetQuery }, [JSON.stringify(facetQuery)]);
 
