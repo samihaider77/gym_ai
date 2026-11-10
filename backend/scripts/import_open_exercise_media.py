@@ -59,7 +59,7 @@ EVERKINETIC_REV = "446bb9a3d0c3beb6b84f7c9d77dfc8af707a2ab6"
 EVERKINETIC_RAW = f"https://raw.githubusercontent.com/everkinetic/data/{EVERKINETIC_REV}"
 
 # Lower rank wins when choosing the primary media for an exercise.
-PROVIDER_RANK = {"Vital Animations": 0, "wger:video": 1, "Everkinetic": 2, "wger:loop": 3, "wger:image": 4}
+PROVIDER_RANK = {"Vital Animations": 0, "wger:video": 1, "Everkinetic": 2, "WorkoutGuide": 2, "wger:loop": 3, "wger:image": 4}
 
 SYNONYMS = {
     "dumbbells": "dumbbell", "db": "dumbbell", "barbells": "barbell", "sz": "ez", "szbar": "ez",

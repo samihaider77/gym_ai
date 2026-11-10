@@ -47,4 +47,4 @@ def is_house_style(provider: str | None, attribution: str | None) -> bool:
     the GymAI drawing notebook, which draws new exercises in the same style (tools/ai-drawings).
     Media in other styles (photos, real videos, other illustrators, the GymAI3D test renders) is kept but hidden.
     """
-    return provider in {"Everkinetic", "GymAI"} or "by Everkinetic" in (attribution or "")
+    return provider in {"Everkinetic", "GymAI", "WorkoutGuide"} or "by Everkinetic" in (attribution or "")
