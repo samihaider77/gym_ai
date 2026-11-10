@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { motion, useReducedMotion } from 'motion/react';
-import { CaretLeft, CaretRight, FunnelSimple, MagnifyingGlass, X } from '@phosphor-icons/react';
+import { CaretLeft, CaretRight, CircleNotch, FunnelSimple, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { ExerciseCard, ExerciseCardSkeleton } from '@/components/exercise-card';
 import { PageHeader } from '@/components/page';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,8 @@ function Library() {
   const params = useSearchParams();
   const reduce = useReducedMotion();
   const [showFilters, setShowFilters] = useState(false);
+  // True while new filters are applied to the URL (a route change); the list fetch follows it.
+  const [navigating, startNavigation] = useTransition();
 
   const search = params.get('q') ?? '';
   const muscle = params.get('muscle') ?? '';
@@ -51,7 +53,7 @@ function Library() {
     const next = new URLSearchParams(params.toString());
     Object.entries(changes).forEach(([key, value]) => (value ? next.set(key, value) : next.delete(key)));
     if (resetPage) next.delete('page');
-    router.replace(`${pathname}${next.toString() ? `?${next}` : ''}`, { scroll: false });
+    startNavigation(() => router.replace(`${pathname}${next.toString() ? `?${next}` : ''}`, { scroll: false }));
   };
 
   // Debounce typing into the URL so every keystroke doesn't fire a request.
@@ -76,6 +78,7 @@ function Library() {
     is_active: true,
   };
   const list = useApi<Paginated<Exercise>>('/exercises', { query }, [JSON.stringify(query)]);
+  const busy = navigating || list.loading;
   const { page: _page, page_size: _size, ...facetQuery } = query;
   const facets = useApi<Facets>('/exercises/facets', { query: facetQuery }, [JSON.stringify(facetQuery)]);
 
@@ -168,7 +171,12 @@ function Library() {
 
       <div className="mb-4 flex min-h-8 items-center justify-between gap-3 text-sm text-muted">
         <span className="tabular" aria-live="polite">
-          {list.data ? `${list.data.total.toLocaleString()} exercise${list.data.total === 1 ? '' : 's'}` : ' '}
+          {busy ? (
+            <span className="inline-flex items-center gap-1.5">
+              <CircleNotch size={14} className="animate-spin" aria-hidden />
+              Loading exercises…
+            </span>
+          ) : list.data ? `${list.data.total.toLocaleString()} exercise${list.data.total === 1 ? '' : 's'}` :' '}
         </span>
         {(activeFilters > 0 || search) && (
           <button onClick={clearAll} className="font-medium text-accent hover:underline">
@@ -179,7 +187,8 @@ function Library() {
 
       {list.error ? (
         <ErrorNotice message={list.error} onRetry={list.reload} />
-      ) : list.loading && !list.data ? (
+      ) : busy ? (
+        // New filters or page: the card skeleton replaces the previous results until the new ones arrive.
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <ExerciseCardSkeleton key={i} />
@@ -197,7 +206,7 @@ function Library() {
           }
         />
       ) : (
-        <div className={cn('transition-opacity duration-200', list.loading && 'opacity-60')}>
+        <div>
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
             {list.data?.items.map((exercise, index) => (
               <motion.div
