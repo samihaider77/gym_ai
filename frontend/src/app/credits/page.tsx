@@ -26,7 +26,7 @@ const SOURCES = [
   {
     name: 'wger.de contributors',
     url: 'https://wger.de',
-    what: 'Exercise drawings and the front squat video on the sign-in page (by Goulart)',
+    what: 'Exercise drawings and videos',
     license: 'CC BY-SA 3.0 / 4.0',
     licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
   },
