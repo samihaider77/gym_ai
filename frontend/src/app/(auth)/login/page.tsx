@@ -56,7 +56,7 @@ function LoginForm() {
       </form>
 
       <p className="mt-6 text-sm text-muted">
-        New to GymAI?{' '}
+        New to RepRight?{' '}
         <Link href="/register" className="font-medium text-accent hover:underline">
           Create an account
         </Link>

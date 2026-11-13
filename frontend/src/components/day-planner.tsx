@@ -110,7 +110,7 @@ export function DayPlanner({
   };
 
   const titles: Record<Step, [string, string]> = {
-    choose: [`Plan ${dayTitle}`, 'Let GymAI suggest a workout for your goal, or pick the exercises yourself.'],
+    choose: [`Plan ${dayTitle}`, 'Let RepRight suggest a workout for your goal, or pick the exercises yourself.'],
     muscles: ['Which muscles today?', `Pick up to ${MAX_MUSCLES}. Exercises match your ${titleCase(goal).toLowerCase()} goal and ${level} level.`],
     preview: ['Your suggested workout', `Sets, reps and rest are set for ${titleCase(goal).toLowerCase()}. You can change them after adding.`],
   };
@@ -127,7 +127,7 @@ export function DayPlanner({
               <MagicWand size={20} weight="fill" />
             </span>
             <span className="text-[15px] font-semibold">Suggest exercises for me</span>
-            <span className="text-sm text-muted">Choose the muscles; GymAI builds the list for your goal and level.</span>
+            <span className="text-sm text-muted">Choose the muscles; RepRight builds the list for your goal and level.</span>
           </button>
           <button
             onClick={() => {

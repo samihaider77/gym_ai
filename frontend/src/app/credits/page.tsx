@@ -66,7 +66,7 @@ export default function CreditsPage() {
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Credits</h1>
       <p className="mt-2 max-w-[65ch] text-muted">
-        GymAI&apos;s exercise demos come from open, freely licensed collections. Thank you to their creators.
+        RepRight&apos;s exercise demos come from open, freely licensed collections. Thank you to their creators.
       </p>
 
       <ul className="mt-8 divide-y divide-line border-y border-line">
