@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import logger
@@ -42,6 +42,19 @@ if settings.CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# The exercise library is the same for every user and changes only when media is imported, so browsers may reuse
+# it for a minute and Vercel's edge for five; a filter clicked again then answers at once.
+PUBLIC_CATALOG = tuple(f"{settings.API_V1_STR}/{p}" for p in ("exercises", "muscle-groups", "equipment"))
+
+
+@app.middleware("http")
+async def cache_public_catalog(request: Request, call_next):
+    response = await call_next(request)
+    if request.method == "GET" and response.status_code == 200 and request.url.path.startswith(PUBLIC_CATALOG):
+        response.headers.setdefault("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=86400")
+    return response
+
 
 # Mount API v1 Routes
 app.include_router(api_router, prefix=settings.API_V1_STR)

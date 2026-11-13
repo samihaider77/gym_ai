@@ -57,7 +57,8 @@ class ExerciseModel(Base):
         nullable=False
     )
 
-    equipment = relationship("EquipmentModel", back_populates="exercises")
+    # selectin: one query for the equipment of a whole page instead of one per exercise
+    equipment = relationship("EquipmentModel", back_populates="exercises", lazy="selectin")
     primary_muscles = relationship(
         "MuscleGroupModel",
         secondary=exercise_muscle_association,
