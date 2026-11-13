@@ -7,7 +7,7 @@ import { LanguageProvider } from '@/lib/i18n';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: { default: 'RepRight', template: '%s | RepRight' },
+  title: { default: 'LiftAndPlate', template: '%s | LiftAndPlate' },
   description: 'Plan workouts, log every set and learn each movement from free, openly licensed exercise demos.',
 };
 

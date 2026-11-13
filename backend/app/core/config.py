@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "RepRight API"
+    PROJECT_NAME: str = "LiftAndPlate API"
     VERSION: str = "1.0.0"
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
