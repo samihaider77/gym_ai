@@ -96,3 +96,7 @@ frontend/public/exercise-media/wger/*
 !frontend/public/exercise-media/wger/91-loop/
 !frontend/public/exercise-media/wger/92-loop/
 !frontend/public/exercise-media/wger/95-loop/
+
+# Local connection strings for the live database (never commit)
+.env.*
+!.env.example
