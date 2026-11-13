@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowDown, ArrowLeft, ArrowUp, Barbell, Lightning, Plus, Trash } from '@phosphor-icons/react';
 import { MiniThumb } from '@/components/exercise-media';
+import { DayPlanner } from '@/components/day-planner';
 import { ExercisePicker } from '@/components/exercise-picker';
 import { PageHeader } from '@/components/page';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { useApi } from '@/lib/use-api';
 import { useExercises } from '@/lib/use-exercises';
 import { cn, titleCase } from '@/lib/utils';
 import { useExerciseText } from '@/lib/i18n';
+import type { Prescription } from '@/lib/suggest';
 
 function NumberStepper({ value, onChange, label, min = 1, max = 100 }: { value: number; onChange: (v: number) => void; label: string; min?: number; max?: number }) {
   return (
@@ -43,13 +45,14 @@ function NumberStepper({ value, onChange, label, min = 1, max = 100 }: { value: 
   );
 }
 
-function DayEditor({ day, onStart, starting }: { day: WorkoutDay; onStart: () => void; starting: boolean }) {
+function DayEditor({ day, plan, onStart, starting }: { day: WorkoutDay; plan: WorkoutPlan | null; onStart: () => void; starting: boolean }) {
   const toast = useToast();
   const reduce = useReducedMotion();
   const list = useApi<{ items: WorkoutExercise[] }>(`/workout-days/${day.id}/exercises`);
   const items = [...(list.data?.items ?? [])].sort((a, b) => a.order_index - b.order_index);
   const exercise = useExercises(items.map((i) => i.exercise_id));
   const [picking, setPicking] = useState(false);
+  const [planning, setPlanning] = useState(false);
   const text = useExerciseText();
   const [title, setTitle] = useState(day.title);
 
@@ -105,6 +108,19 @@ function DayEditor({ day, onStart, starting }: { day: WorkoutDay; onStart: () =>
     list.setData((data) => ({ items: [...(data?.items ?? []), created] }));
   };
 
+  // Suggested exercises are added one after another so their order is kept.
+  const addSuggested = async (picks: { exercise: Exercise; prescription: Prescription }[]) => {
+    for (const { exercise: picked, prescription } of picks) {
+      const created = await api<WorkoutExercise>(`/workout-days/${day.id}/exercises`, {
+        method: 'POST',
+        body: { exercise_id: picked.id, order_index: nextIndex(), ...prescription },
+      });
+      latest.current = [...latest.current, created];
+      list.setData((data) => ({ items: [...(data?.items ?? []), created] }));
+    }
+    toast(`Added ${picks.length} exercise${picks.length === 1 ? '' : 's'}`);
+  };
+
   const rename = async () => {
     const next = title.trim();
     if (!next || next === day.title) return setTitle(day.title);
@@ -130,7 +146,7 @@ function DayEditor({ day, onStart, starting }: { day: WorkoutDay; onStart: () =>
           className="-ml-2 h-10 rounded-control border border-transparent bg-transparent px-2 text-lg font-semibold tracking-tight transition-colors hover:border-line focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
         />
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setPicking(true)}>
+          <Button variant="secondary" onClick={() => setPlanning(true)}>
             <Plus size={16} weight="bold" />
             Add exercises
           </Button>
@@ -154,7 +170,7 @@ function DayEditor({ day, onStart, starting }: { day: WorkoutDay; onStart: () =>
           icon={<Barbell size={22} />}
           title="Nothing planned for this day"
           body="Add exercises from the library. You can change sets and reps after."
-          action={<Button onClick={() => setPicking(true)}>Add exercises</Button>}
+          action={<Button onClick={() => setPlanning(true)}>Add exercises</Button>}
         />
       ) : (
         <ul className="flex flex-col gap-2">
@@ -203,6 +219,14 @@ function DayEditor({ day, onStart, starting }: { day: WorkoutDay; onStart: () =>
         </ul>
       )}
 
+      <DayPlanner
+        open={planning}
+        onClose={() => setPlanning(false)}
+        plan={plan}
+        dayTitle={title}
+        onPickManually={() => setPicking(true)}
+        onAddSuggested={addSuggested}
+      />
       <ExercisePicker open={picking} onClose={() => setPicking(false)} onPick={add} title={`Add to ${title}`} />
     </div>
   );
@@ -331,7 +355,7 @@ export default function PlanPage({ params }: { params: { id: string } }) {
       )}
 
       {current ? (
-        <DayEditor key={current.id} day={current} onStart={start} starting={starting} />
+        <DayEditor key={current.id} day={current} plan={plan.data} onStart={start} starting={starting} />
       ) : (
         days.data && (
           <EmptyState
