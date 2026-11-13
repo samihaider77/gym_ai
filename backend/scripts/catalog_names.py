@@ -44,7 +44,7 @@ def is_house_style(provider: str | None, attribution: str | None) -> bool:
     """True for the Everkinetic line drawings, the largest set of demos in one visual style.
 
     They come straight from Everkinetic, through wger ("... illustration by Everkinetic via wger.de"), or from
-    the GymAI drawing notebook, which draws new exercises in the same style (tools/ai-drawings).
+    Workout Guide (Bryl Lim), which builds on the Everkinetic drawings.
     Media in other styles (photos, real videos, other illustrators, the GymAI3D test renders) is kept but hidden.
     """
-    return provider in {"Everkinetic", "GymAI", "WorkoutGuide"} or "by Everkinetic" in (attribution or "")
+    return provider in {"Everkinetic", "WorkoutGuide"} or "by Everkinetic" in (attribution or "")
