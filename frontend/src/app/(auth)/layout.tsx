@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Link>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-[rgb(20_20_22)] lg:block">
+      <aside className="relative hidden overflow-hidden bg-[rgb(20_33_61)] lg:block">
         <video
           src="/brand/auth.mp4"
           poster="/brand/auth.webp"
@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           className="absolute inset-0 h-full w-full object-cover"
           aria-hidden
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgb(14_14_16)] via-[rgb(14_14_16/0.7)] to-transparent px-10 pb-10 pt-32">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgb(14_23_44)] via-[rgb(14_23_44/0.7)] to-transparent px-10 pb-10 pt-32">
           <p className="max-w-md text-2xl font-semibold leading-snug tracking-tight text-white">
             Hundreds of exercises with free demo videos, so every rep starts with good form.
           </p>

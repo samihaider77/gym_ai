@@ -110,9 +110,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Sign out
             </button>
           </div>
-          <Link href="/credits" className="mt-2 block px-2.5 text-xs text-faint transition-colors hover:text-muted">
-            Credits
-          </Link>
         </div>
       </aside>
 

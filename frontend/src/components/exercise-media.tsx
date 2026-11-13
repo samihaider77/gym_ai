@@ -97,7 +97,7 @@ export function ExerciseThumb({ exercise, className }: { exercise: Exercise; cla
             />
           )}
           {isVideo(media) && (
-            <span className="absolute bottom-2 left-2 flex h-6 items-center gap-1 rounded-full bg-[rgb(20_20_22)] px-2 text-[11px] font-medium text-white">
+            <span className="absolute bottom-2 left-2 flex h-6 items-center gap-1 rounded-full bg-[rgb(20_33_61)] px-2 text-[11px] font-medium text-white">
               <Play size={10} weight="fill" />
               Demo
             </span>
@@ -139,7 +139,7 @@ export function ExercisePlayer({ exercise }: { exercise: Exercise }) {
   return (
     <figure className="overflow-hidden rounded-card border border-line bg-surface shadow-card">
       <div
-        className={cn('relative', media && isFootage(media) ? 'bg-[rgb(20_20_22)]' : 'aspect-square bg-white sm:aspect-[4/3]')}
+        className={cn('relative', media && isFootage(media) ? 'bg-[rgb(20_33_61)]' : 'aspect-square bg-white sm:aspect-[4/3]')}
         style={media && isFootage(media) ? { aspectRatio: `${media.width} / ${media.height}` } : undefined}
       >
         {!media ? (

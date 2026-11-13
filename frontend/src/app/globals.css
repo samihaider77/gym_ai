@@ -2,40 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Solid surfaces only: no translucency or backdrop blur anywhere in the app. */
+/* Solid surfaces only: no translucency or backdrop blur anywhere in the app.
+   Palette: Navy #14213D, Cream #F4EDE0, Coral #FF6B5B. Light mode is cream with navy text, dark mode is navy with
+   cream text; coral is the one accent. Text on coral is navy, because white on this coral is too faint to read. */
 :root {
-  --canvas: 245 245 244;
-  --surface: 255 255 255;
-  --sunken: 238 238 236;
-  --line: 226 226 223;
-  --ink: 24 24 27;
-  --muted: 87 87 94;
-  --faint: 140 140 148;
-  --accent: 178 24 28;
-  --accent-strong: 150 16 20;
-  --accent-soft: 253 236 236;
-  --accent-fg: 255 255 255;
+  --canvas: 244 237 224; /* cream */
+  --surface: 251 248 242;
+  --sunken: 236 227 211;
+  --line: 224 213 194;
+  --ink: 20 33 61; /* navy */
+  --muted: 74 85 110;
+  --faint: 126 133 150;
+  --accent: 255 107 91; /* coral */
+  --accent-strong: 238 86 70;
+  --accent-soft: 255 226 220;
+  --accent-fg: 20 33 61;
   --success: 22 128 74;
-  --danger: 190 30 30;
-  --shadow: 24 24 27;
+  --danger: 190 38 38;
+  --shadow: 20 33 61;
   color-scheme: light;
 }
 
 .dark {
-  --canvas: 14 14 16;
-  --surface: 24 24 27;
-  --sunken: 32 32 36;
-  --line: 44 44 49;
-  --ink: 240 240 241;
-  --muted: 168 168 176;
-  --faint: 120 120 128;
-  --accent: 229 72 77;
-  --accent-strong: 244 99 103;
-  --accent-soft: 58 22 24;
-  --accent-fg: 20 10 10;
+  --canvas: 14 23 44;
+  --surface: 20 33 61; /* navy */
+  --sunken: 28 43 76;
+  --line: 41 57 94;
+  --ink: 244 237 224; /* cream */
+  --muted: 190 184 172;
+  --faint: 132 138 156;
+  --accent: 255 107 91; /* coral */
+  --accent-strong: 255 136 122;
+  --accent-soft: 72 38 48;
+  --accent-fg: 20 33 61;
   --success: 74 196 128;
-  --danger: 244 99 103;
-  --shadow: 0 0 0;
+  --danger: 255 120 110;
+  --shadow: 4 8 18;
   color-scheme: dark;
 }
 
