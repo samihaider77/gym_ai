@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-line bg-surface px-4 lg:hidden">
-        <Brand />
+        <Brand size="sm" />
         <div className="flex items-center gap-1">
           <LanguageToggle compact />
           <ThemeToggle />

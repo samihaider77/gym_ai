@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
       <div className="flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Brand href="/login" full />
+          <Brand href="/login" size="lg" />
           <ThemeToggle />
         </div>
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12">{children}</div>

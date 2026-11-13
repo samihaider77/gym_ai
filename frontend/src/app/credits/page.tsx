@@ -60,7 +60,7 @@ export default function CreditsPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-6 sm:px-10">
       <div className="flex items-center justify-between">
-        <Brand href="/" />
+        <Brand href="/" size="sm" />
         <ThemeToggle />
       </div>
 
