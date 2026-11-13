@@ -88,8 +88,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="mt-auto border-t border-line pt-4">
-          <div className="flex items-center gap-3 px-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
+          {/* Preferences: exercise language and theme on one row */}
+          <div className="flex items-center gap-2">
+            <LanguageToggle className="flex-1" />
+            <ThemeToggle className="bg-sunken" />
+          </div>
+          {/* Account: who is signed in, with sign out beside it */}
+          <div className="mt-3 flex items-center gap-3 rounded-card border border-line bg-canvas p-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-fg">
               {(user?.first_name?.[0] ?? '') + (user?.last_name?.[0] ?? '')}
             </div>
             <div className="min-w-0 flex-1">
@@ -98,16 +104,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </p>
               <p className="truncate text-xs text-muted">{user?.email}</p>
             </div>
-          </div>
-          <LanguageToggle className="mt-3" />
-          <div className="mt-2 flex items-center gap-1">
-            <ThemeToggle />
             <button
               onClick={signOut}
-              className="flex h-9 flex-1 items-center gap-2 rounded-control px-2.5 text-sm text-muted transition-colors hover:bg-sunken hover:text-ink"
+              title="Sign out"
+              aria-label="Sign out"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-muted transition-colors hover:bg-sunken hover:text-danger"
             >
-              <SignOut size={18} />
-              Sign out
+              <SignOut size={17} />
             </button>
           </div>
         </div>

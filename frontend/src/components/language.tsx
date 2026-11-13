@@ -15,7 +15,7 @@ export function LanguageToggle({ compact, className }: { compact?: boolean; clas
           aria-pressed={lang === option.value}
           title={option.label}
           className={cn(
-            'h-8 rounded-[8px] px-2.5 text-xs font-medium transition-colors',
+            'h-8 whitespace-nowrap rounded-[8px] px-2 text-xs font-medium transition-colors',
             !compact && 'flex-1',
             lang === option.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink',
           )}
