@@ -41,8 +41,10 @@ function ProfileForm() {
 
   useEffect(() => {
     setUser(session.user());
-    api<UserProfile>('/profile/me')
+    // null until the user saves a profile for the first time (older backends answered 404 instead)
+    api<UserProfile | null>('/profile/me')
       .then((p) => {
+        if (!p) return;
         setProfile(p);
         setExists(true);
       })

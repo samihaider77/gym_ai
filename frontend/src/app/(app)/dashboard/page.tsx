@@ -25,7 +25,9 @@ export default function DashboardPage() {
 
   const sessions = useApi<Paginated<WorkoutSession>>('/workout-sessions', { query: { page_size: 50 } });
   const plans = useApi<Paginated<WorkoutPlan>>('/workout-plans', { query: { page_size: 5, is_active: true } });
-  const progress = useApi<BodyProgress>('/progress');
+  // Latest measurement: newest-first history, one row. Empty for new users (the /progress endpoint answers 404).
+  const progressHistory = useApi<Paginated<BodyProgress>>('/progress/history', { query: { page_size: 1 } });
+  const progress = { loading: progressHistory.loading, data: progressHistory.data?.items[0] ?? null };
   // A different page of demo exercises on each visit keeps the home screen fresh.
   const [demoPage] = useState(() => 1 + Math.floor(Math.random() * 20));
   const demos = useApi<Paginated<Exercise>>('/exercises', { query: { has_media: true, page_size: 4, page: demoPage, is_active: true } });

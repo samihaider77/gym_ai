@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.core.db.session import get_db
@@ -36,10 +38,10 @@ def create_profile_endpoint(
 
 @router.get(
     "/me",
-    response_model=UserProfileResponse,
+    response_model=Optional[UserProfileResponse],
     status_code=status.HTTP_200_OK,
     summary="Get profile of authenticated user",
-    description="Retrieves the fitness profile of the currently authenticated user."
+    description="Retrieves the fitness profile of the currently authenticated user, or null if none is saved yet."
 )
 def get_my_profile_endpoint(
     current_user: UserModel = Depends(get_current_user),
@@ -47,10 +49,9 @@ def get_my_profile_endpoint(
 ):
     """
     HTTP GET handler for fetching current user's profile.
+    A new user has no profile yet: that is a normal state, so it answers null instead of a 404 error.
     """
-    repo = UserProfileRepository(db)
-    service = UserProfileService(repo)
-    return service.get_profile(current_user.id)
+    return UserProfileRepository(db).get_profile_by_user_id(current_user.id)
 
 
 @router.put(

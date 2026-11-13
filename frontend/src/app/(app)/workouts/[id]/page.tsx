@@ -21,6 +21,9 @@ import { cn, titleCase } from '@/lib/utils';
 import { useExerciseText } from '@/lib/i18n';
 import type { Prescription } from '@/lib/suggest';
 
+// A plan is one training week, so it has at most 7 days.
+const MAX_DAYS = 7;
+
 function NumberStepper({ value, onChange, label, min = 1, max = 100 }: { value: number; onChange: (v: number) => void; label: string; min?: number; max?: number }) {
   return (
     <div className="flex items-center rounded-control border border-line" role="group" aria-label={label}>
@@ -245,6 +248,7 @@ export default function PlanPage({ params }: { params: { id: string } }) {
   const current = sorted.find((d) => d.id === activeDay) ?? sorted[0];
 
   const addDay = async () => {
+    if (sorted.length >= MAX_DAYS) return;
     const next = (sorted[sorted.length - 1]?.day_number ?? 0) + 1;
     try {
       const day = await api<WorkoutDay>(`/workout-plans/${params.id}/days`, {
@@ -253,6 +257,12 @@ export default function PlanPage({ params }: { params: { id: string } }) {
       });
       days.setData((data) => ({ items: [...(data?.items ?? []), day] }));
       setActiveDay(day.id);
+      // "Days per week" follows the plan's actual training days, so a 3-day plan with a 4th day says 4.
+      const count = sorted.length + 1;
+      if (plan.data && count > plan.data.days_per_week) {
+        const updated = await api<WorkoutPlan>(`/workout-plans/${params.id}`, { method: 'PUT', body: { days_per_week: count } });
+        plan.setData(updated);
+      }
     } catch (err) {
       toast((err as Error).message, 'error');
     }
@@ -346,7 +356,9 @@ export default function PlanPage({ params }: { params: { id: string } }) {
           ))}
           <button
             onClick={addDay}
-            className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-dashed border-line px-3.5 text-sm font-medium text-muted transition-colors hover:border-faint hover:text-ink"
+            disabled={sorted.length >= MAX_DAYS}
+            title={sorted.length >= MAX_DAYS ? 'A week has 7 days' : undefined}
+            className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-dashed border-line px-3.5 text-sm font-medium text-muted transition-colors hover:border-faint hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus size={14} weight="bold" />
             Add day
