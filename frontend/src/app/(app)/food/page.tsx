@@ -1,7 +1,21 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Camera, CaretLeft, CaretRight, ForkKnife, Minus, Plus, Sparkle, Trash } from '@phosphor-icons/react';
+import {
+  BowlFood,
+  Camera,
+  CaretLeft,
+  CaretRight,
+  ForkKnife,
+  FrameCorners,
+  Minus,
+  Plus,
+  Ruler,
+  Sparkle,
+  Sun,
+  Trash,
+  type Icon,
+} from '@phosphor-icons/react';
 import { PageHeader, Panel, Reveal } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
@@ -141,7 +155,7 @@ function MealEditor({
       open={open}
       onClose={onClose}
       title={initial.source === 'photo' ? 'Check your meal' : 'Add a meal'}
-      description="Fix any portion before saving. Calories come from the food table, not a guess."
+      description="Check the foods and fix any portion before saving."
     >
       <div className="flex flex-col gap-4">
         {initial.preview && (
@@ -253,6 +267,55 @@ function MealEditor({
   );
 }
 
+const TIPS_KEY = 'gymai.photoTipsSeen';
+
+const PHOTO_TIPS: { icon: Icon; en: string; ur: string }[] = [
+  { icon: BowlFood, en: 'Shoot from a slight angle, not straight down, so the AI can see how full each bowl is.', ur: 'Seedha upar se nahi, thora side (tircha) se photo lein, taake nazar aaye bowl kitna bhara hai.' },
+  { icon: FrameCorners, en: 'Fit the whole meal in the photo: every plate, bowl and glass.', ur: 'Poora khana photo mein aaye: har plate, bowl aur glass.' },
+  { icon: Ruler, en: 'Keep a spoon or a roti in the shot. It helps judge portion size.', ur: 'Chamach ya roti saath ho to portion ka andaza behtar lagta hai.' },
+  { icon: Sun, en: 'Use good light and avoid strong shadows. Take the photo before you start eating.', ur: 'Achi roshni mein lein, gehra saaya na ho. Khana shuru karne se pehle photo lein.' },
+];
+
+function PhotoTips({ open, onClose, onContinue }: { open: boolean; onClose: () => void; onContinue: (dontShow: boolean) => void }) {
+  const { lang } = useLanguage();
+  const ur = lang === 'ur';
+  const [dontShow, setDontShow] = useState(false);
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={ur ? 'Achi photo kese lein' : 'Tips for a good photo'}
+      description={ur ? 'Achi photo se AI khana aur portion behtar pehchanta hai.' : 'A clear photo helps the AI spot every food and its portion.'}
+    >
+      <div className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-3">
+          {PHOTO_TIPS.map(({ icon: TipIcon, en, ur: urText }) => (
+            <li key={en} className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sunken text-accent">
+                <TipIcon size={18} weight="bold" aria-hidden />
+              </span>
+              <p className="pt-1.5 text-[15px] leading-relaxed">{ur ? urText : en}</p>
+            </li>
+          ))}
+        </ul>
+        <label className="flex items-center gap-2 text-sm text-muted">
+          <input id="photo-tips-hide" type="checkbox" checked={dontShow} onChange={(e) => setDontShow(e.target.checked)} className="h-4 w-4 accent-accent" />
+          {ur ? 'Dobara mat dikhayein' : 'Don’t show this again'}
+        </label>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={onClose}>
+            {ur ? 'Wapas' : 'Cancel'}
+          </Button>
+          <Button onClick={() => onContinue(dontShow)}>
+            <Camera size={16} weight="bold" />
+            {ur ? 'Photo lein' : 'Take photo'}
+          </Button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
 function mealTitle(meal: Meal, ur: boolean) {
   return meal.items.map((i) => `${ur ? i.name_ur : i.name} (${i.quantity} ${ur ? i.unit_ur : i.unit})`).join(', ');
 }
@@ -275,6 +338,28 @@ export default function FoodPage() {
     notice: string | null;
     others: string[];
   } | null>(null);
+
+  const [tipsOpen, setTipsOpen] = useState(false);
+
+  // Photo tips show before the camera opens, until the member ticks "Don't show this again".
+  const startSnap = useCallback(() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem(TIPS_KEY) === '1';
+    } catch {}
+    if (seen) fileInput.current?.click();
+    else setTipsOpen(true);
+  }, []);
+
+  const continueToCamera = (dontShow: boolean) => {
+    if (dontShow) {
+      try {
+        localStorage.setItem(TIPS_KEY, '1');
+      } catch {}
+    }
+    setTipsOpen(false);
+    fileInput.current?.click();
+  };
 
   const openManual = useCallback(() => {
     setEditor({ key: Date.now(), lines: [], preview: null, source: 'manual', notice: null, others: [] });
@@ -327,14 +412,14 @@ export default function FoodPage() {
     <>
       <PageHeader
         title="Food"
-        description="Snap your meal to see calories and protein. Numbers come from a desi food table built on USDA data."
+        description="Snap your meal to see its calories and protein."
         actions={
           <>
             <Button variant={canSnap ? 'secondary' : 'primary'} onClick={openManual} disabled={!foods.data}>
               <Plus size={16} weight="bold" />
               Add by hand
             </Button>
-            <Button variant={canSnap ? 'primary' : 'secondary'} onClick={() => fileInput.current?.click()} disabled={!foods.data}>
+            <Button variant={canSnap ? 'primary' : 'secondary'} onClick={startSnap} disabled={!foods.data}>
               <Camera size={16} weight="bold" />
               Snap a meal
             </Button>
@@ -384,7 +469,7 @@ export default function FoodPage() {
                 body="Take a photo of your plate, or add what you ate by hand."
                 action={
                   offset === 0 ? (
-                    <Button onClick={() => fileInput.current?.click()} disabled={!foods.data}>
+                    <Button onClick={startSnap} disabled={!foods.data}>
                       <Camera size={16} weight="bold" />
                       Snap a meal
                     </Button>
@@ -428,6 +513,8 @@ export default function FoodPage() {
           </Reveal>
         </div>
       ) : null}
+
+      <PhotoTips open={tipsOpen} onClose={() => setTipsOpen(false)} onContinue={continueToCamera} />
 
       <Dialog open={reading !== null} onClose={() => {}} title="Reading your plate…" description="This takes a few seconds.">
         <div className="flex flex-col items-center gap-4">
