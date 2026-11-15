@@ -26,6 +26,11 @@ def list_foods(_: UserModel = Depends(get_current_user)):
     return MealSnapService.list_foods()
 
 
+@router.get("/foods/search", response_model=List[FoodResponse], summary="Search desi and USDA foods by name")
+def search_foods(q: str = Query(..., min_length=1, max_length=60), _: UserModel = Depends(get_current_user)):
+    return MealSnapService.search_foods(q)
+
+
 @router.post("/meals/analyze", response_model=AnalyzeResponse, summary="Recognise the foods in a meal photo")
 def analyze_meal(
     body: AnalyzeRequest,

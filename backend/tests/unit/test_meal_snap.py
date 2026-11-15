@@ -63,3 +63,33 @@ def test_tip_warns_when_over_calories():
 
 def test_tip_asks_for_profile_without_targets():
     assert "Profile" in coaching_tip({"kcal": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0}, None, 0, {})["en"]
+
+
+def test_usda_match_finds_common_foods_and_skips_alcohol():
+    assert foods.match("Cucumber, raw").name == "Cucumber, raw"
+    assert foods.match("cola").name == "Soft drink, cola"
+    assert foods.match("tomatoes").name == "Tomatoes, raw"
+    assert foods.match("gulab jamun") is None  # not in USDA: the AI's estimate is used instead
+
+
+def test_serving_unit_uses_the_photo_weight():
+    cucumber = foods.match("cucumber raw")
+    item = MealSnapService.build_items(
+        [MealItemIn(food_key=cucumber.key, quantity=1, unit="serving", unit_grams=80, name="Kheera")])[0]
+    assert item.grams == 80 and item.name == "Kheera"
+    assert item.kcal == round(cucumber.kcal * 0.8)
+
+
+def test_estimated_item_needs_values_and_is_flagged():
+    from app.modules.ai_coach.application.dtos import Per100g
+    item = MealSnapService.build_items([MealItemIn(
+        food_key="est:gulab-jamun", quantity=1, unit="100 g", name="Gulab jamun",
+        per_100g=Per100g(kcal=320, protein_g=5, carbs_g=50, fat_g=12))])[0]
+    assert item.estimated and item.kcal == 320
+    with pytest.raises(HTTPException):
+        MealSnapService.build_items([MealItemIn(food_key="est:x", quantity=1, name="X")])
+
+
+def test_search_puts_desi_foods_first():
+    names = [f.name for f in foods.search("chicken")]
+    assert names[0].startswith("Chicken") and "Chicken curry / karahi" in names[:4]

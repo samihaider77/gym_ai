@@ -1,7 +1,8 @@
 """Food photo recognition with the Google Gemini API (REST, no extra dependency).
 
-The model is told which foods exist in our table and must answer with their keys, a quantity in each food's
-household unit, and a confidence. It never gives calories: those come from the food table.
+The model lists every food in the photo with a name, an estimated weight and, for our 35 desi foods, the dish key and
+a count in its household unit. Calories come from our tables; the model's own per-100 g numbers are used only for a
+food that is in neither table, and such items are marked as estimates.
 """
 import base64
 import json
@@ -29,22 +30,35 @@ def is_configured() -> bool:
 
 
 def _prompt(foods: List[Food]) -> str:
-    menu = "\n".join(
+    menu = [
         f"- {f.key}: {f.name} (also called {', '.join((f.name_ur,) + f.aliases)}); unit = {f.units[0].label} "
         f"(about {f.units[0].grams:g} g)"
         for f in foods
-    )
-    return (
-        "You look at a photo of a meal from Pakistan or South Asia and list what is on the plate.\n"
-        "Use only these food keys. Give the quantity in the food's unit (for example 2 roti, 1.5 katori, "
-        "0.5 plate). Estimate portions from plate, bowl and hand size.\n"
-        f"{menu}\n"
-        "If a visible food is not in the list, put its name in `other_foods` instead of guessing a key.\n"
-        "If the photo is not food, return no items and set `is_food` to false."
-    )
+    ]
+    lines = [
+        "You look at a photo of a meal and list EVERY food and drink you can see: mains, breads, rice, sides, "
+        "salad, raita, chutney, pickle, sweets, fruit and drinks. Do not skip small items.",
+        "For each item give:",
+        "- name: short English name (e.g. 'cucumber salad', 'mint raita').",
+        "- name_ur: the same name in Roman Urdu as people in Pakistan say it (e.g. 'kheera salad').",
+        "- food_key: one of the keys below if the item is that food, otherwise 'other'.",
+        "- quantity: for a listed key, how many of its unit (e.g. 2 roti, 1.5 katori, 0.5 plate). For 'other', 1.",
+        "- grams: your estimate of the item's weight in grams. Judge from how full each bowl or plate is and from "
+        "objects of known size (spoon, roti, hand, glass).",
+        "- usda_name: for 'other' items, a generic name in the style of the USDA food database "
+        "(e.g. 'Cucumber, raw', 'Soft drink, cola', 'Fish, fried', 'Pasta with tomato sauce').",
+        "- kcal_100g, protein_100g, carbs_100g, fat_100g: typical values per 100 g, used only if the food is not "
+        "in our database.",
+        "- confidence: 0 to 1.",
+        "Known foods:",
+        *menu,
+        "If the photo is not food, return no items and set `is_food` to false.",
+    ]
+    return "\n".join(lines)
 
 
 def _schema(foods: List[Food]) -> dict:
+    number = {"type": "NUMBER"}
     return {
         "type": "OBJECT",
         "properties": {
@@ -54,21 +68,29 @@ def _schema(foods: List[Food]) -> dict:
                 "items": {
                     "type": "OBJECT",
                     "properties": {
-                        "food_key": {"type": "STRING", "enum": [f.key for f in foods]},
-                        "quantity": {"type": "NUMBER"},
-                        "confidence": {"type": "NUMBER", "description": "0 to 1"},
+                        "name": {"type": "STRING"},
+                        "name_ur": {"type": "STRING"},
+                        "food_key": {"type": "STRING", "enum": [f.key for f in foods] + ["other"]},
+                        "quantity": number,
+                        "grams": number,
+                        "usda_name": {"type": "STRING"},
+                        "kcal_100g": number,
+                        "protein_100g": number,
+                        "carbs_100g": number,
+                        "fat_100g": number,
+                        "confidence": number,
                     },
-                    "required": ["food_key", "quantity", "confidence"],
+                    "required": ["name", "food_key", "quantity", "grams", "kcal_100g", "protein_100g", "carbs_100g",
+                                 "fat_100g", "confidence"],
                 },
             },
-            "other_foods": {"type": "ARRAY", "items": {"type": "STRING"}},
         },
-        "required": ["is_food", "items", "other_foods"],
+        "required": ["is_food", "items"],
     }
 
 
-def recognise(image: bytes, mime_type: str, foods: List[Food], timeout: float = 25.0) -> dict:
-    """Returns {"is_food": bool, "items": [{food_key, quantity, confidence}], "other_foods": [str]}."""
+def recognise(image: bytes, mime_type: str, foods: List[Food], timeout: float = 45.0) -> dict:
+    """Returns {"is_food": bool, "items": [{name, name_ur, food_key, quantity, grams, usda_name, *_100g, confidence}]}."""
     if not is_configured():
         raise VisionUnavailable("Photo recognition isn't set up yet. Add the foods by hand for now.")
     body = {
@@ -113,5 +135,4 @@ def recognise(image: bytes, mime_type: str, foods: List[Food], timeout: float = 
     return {
         "is_food": bool(result.get("is_food", True)),
         "items": [i for i in result.get("items", []) if isinstance(i, dict)],
-        "other_foods": [str(o) for o in result.get("other_foods", []) if str(o).strip()],
     }

@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "desi_foods.json"
+USDA_OUT = Path(__file__).resolve().parents[1] / "data" / "usda_foods.json"
 
 KATORI = ("cup", 0.75)
 PLATE = ("cup", 1.5)
@@ -141,6 +142,26 @@ def main(src):
         "foods": rows,
     }, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"wrote {len(rows)} foods to {OUT}")
+    build_usda(foods.values())
+
+
+def build_usda(foods):
+    """Every FNDDS food in a compact form, so Meal Snap can price foods outside the desi table.
+    Row: [fdc_id, description, kcal, protein_g, carbs_g, fat_g, [[portion, grams], ...]] (per 100 g)."""
+    rows = []
+    for food in foods:
+        n = per100(food)
+        portions = [[p["portionDescription"], p["gramWeight"]] for p in food["foodPortions"]
+                    if p["gramWeight"] and p["portionDescription"] != "Quantity not specified"
+                    and "surface inch" not in p["portionDescription"] and "cubic inch" not in p["portionDescription"]]
+        rows.append([food["fdcId"], food["description"], round(n["kcal"]), round(n["protein_g"], 1),
+                     round(n["carbs_g"], 1), round(n["fat_g"], 1), portions[:4]])
+    USDA_OUT.write_text(json.dumps({
+        "source": "USDA FoodData Central, FNDDS 2021-2023 (public domain). Built by scripts/build_desi_foods.py.",
+        "columns": ["fdc_id", "description", "kcal", "protein_g", "carbs_g", "fat_g", "portions"],
+        "foods": rows,
+    }, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
+    print(f"wrote {len(rows)} foods to {USDA_OUT}")
 
 
 if __name__ == "__main__":

@@ -19,10 +19,21 @@ class FoodResponse(BaseModel):
     per_100g: dict
 
 
+class Per100g(BaseModel):
+    kcal: float = Field(..., ge=0, le=900)
+    protein_g: float = Field(..., ge=0, le=100)
+    carbs_g: float = Field(..., ge=0, le=100)
+    fat_g: float = Field(..., ge=0, le=100)
+
+
 class MealItemIn(BaseModel):
-    food_key: str = Field(..., max_length=50)
+    food_key: str = Field(..., max_length=60, description="Desi key, 'usda:<id>', or 'est:<name>' for an estimate")
     quantity: float = Field(..., gt=0, le=50)
-    unit: Optional[str] = Field(None, max_length=40, description="Unit label; defaults to the food's first unit")
+    unit: Optional[str] = Field(None, max_length=60, description="Unit label; defaults to the food's first unit")
+    unit_grams: Optional[float] = Field(None, ge=1, le=2000, description="Grams in one 'serving' (photo estimate)")
+    name: Optional[str] = Field(None, max_length=80, description="Name to show, e.g. the AI's 'cucumber salad'")
+    name_ur: Optional[str] = Field(None, max_length=80)
+    per_100g: Optional[Per100g] = Field(None, description="Only for 'est:' items, which are in no table")
 
 
 class MealItem(BaseModel):
@@ -39,6 +50,10 @@ class MealItem(BaseModel):
     carbs_g: float
     fat_g: float
     confidence: Optional[float] = None
+    estimated: bool = False  # True when the numbers are the AI's estimate, not from a food table
+    unit_grams: Optional[float] = None  # grams in one 'serving' when that unit is used
+    per_100g: Optional[Per100g] = None
+    units: List[FoodUnitResponse] = []
 
 
 class AnalyzeRequest(BaseModel):
@@ -49,7 +64,7 @@ class AnalyzeRequest(BaseModel):
 class AnalyzeResponse(BaseModel):
     is_food: bool
     items: List[MealItem]
-    other_foods: List[str]
+    other_foods: List[str] = []  # foods seen but impossible to price
 
 
 class MealCreate(BaseModel):

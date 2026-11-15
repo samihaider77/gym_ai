@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BowlFood,
   Camera,
@@ -20,16 +20,62 @@ import { PageHeader, Panel, Reveal } from '@/components/page';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, ErrorNotice, Skeleton } from '@/components/ui/feedback';
-import { Select } from '@/components/ui/field';
+import { Input, Select } from '@/components/ui/field';
 import { useToast } from '@/components/ui/toast';
 import { api, ApiError } from '@/lib/api';
 import { useLanguage } from '@/lib/i18n';
-import type { Food, Meal, MealAnalysis, MealDay } from '@/lib/types';
+import type { Food, FoodUnit, Meal, MealAnalysis, MealDay, MealItem } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
 import { cn } from '@/lib/utils';
 
-/** A line in the meal editor: a food from the table, how many of which unit. */
-type Line = { food_key: string; quantity: number; unit: string; confidence?: number | null };
+/**
+ * A line in the meal editor. It carries its own units and per-100 g values, so foods from the desi list, the
+ * wider food search and AI estimates all edit the same way. The server recomputes everything on save.
+ */
+type Line = {
+  food_key: string;
+  name: string;
+  name_ur: string;
+  quantity: number;
+  unit: string;
+  units: FoodUnit[];
+  per_100g: Food['per_100g'];
+  unit_grams?: number | null;
+  estimated?: boolean;
+  confidence?: number | null;
+};
+
+function lineFromFood(food: Food): Line {
+  return {
+    food_key: food.key,
+    name: food.name,
+    name_ur: food.name_ur,
+    quantity: 1,
+    unit: food.units[0].label,
+    units: food.units,
+    per_100g: food.per_100g,
+  };
+}
+
+function lineFromItem(item: MealItem, foods: Map<string, Food>): Line {
+  const known = foods.get(item.food_key);
+  return {
+    food_key: item.food_key,
+    name: item.name,
+    name_ur: item.name_ur,
+    quantity: item.quantity,
+    unit: item.unit,
+    units: item.units?.length ? item.units : (known?.units ?? [{ label: item.unit, label_ur: item.unit_ur, grams: item.grams / item.quantity }]),
+    per_100g: item.per_100g ?? known?.per_100g ?? { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
+    unit_grams: item.unit_grams,
+    estimated: item.estimated,
+    confidence: item.confidence,
+  };
+}
+
+function unitLabel(unit: FoodUnit, ur: boolean) {
+  return unit.label === 'serving' ? `serving (${Math.round(unit.grams)} g)` : ur ? unit.label_ur : unit.label;
+}
 
 function dayBounds(offset: number) {
   const start = new Date();
@@ -40,12 +86,75 @@ function dayBounds(offset: number) {
   return { start: start.toISOString(), end: end.toISOString(), label: start };
 }
 
-function lineMacros(line: Line, foods: Map<string, Food>) {
-  const food = foods.get(line.food_key);
-  if (!food) return { kcal: 0, protein_g: 0, grams: 0 };
-  const unit = food.units.find((u) => u.label === line.unit) ?? food.units[0];
-  const grams = line.quantity * unit.grams;
-  return { kcal: (food.per_100g.kcal * grams) / 100, protein_g: (food.per_100g.protein_g * grams) / 100, grams };
+function lineMacros(line: Line) {
+  const unit = line.units.find((u) => u.label === line.unit) ?? line.units[0];
+  const grams = line.quantity * (unit?.grams ?? 0);
+  return { kcal: (line.per_100g.kcal * grams) / 100, protein_g: (line.per_100g.protein_g * grams) / 100, grams };
+}
+
+/** Search box for foods outside the quick list (salad, pizza, fruit, drinks...). */
+function FoodSearch({ onPick }: { onPick: (food: Food) => void }) {
+  const { lang } = useLanguage();
+  const ur = lang === 'ur';
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Food[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setBusy(true);
+      api<Food[]>('/ai/foods/search', { query: { q }, signal: controller.signal })
+        .then(setResults)
+        .catch(() => {})
+        .finally(() => setBusy(false));
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Input
+        id="food-search"
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={ur ? 'Koi aur khana dhoondein (salad, pizza, juice…)' : 'Search any other food (salad, pizza, juice…)'}
+        aria-label="Search foods"
+      />
+      {query.trim().length >= 2 && (
+        <ul className="max-h-52 divide-y divide-line overflow-y-auto rounded-control border border-line">
+          {results.length === 0 ? (
+            <li className="px-3 py-2.5 text-sm text-muted">{busy ? 'Searching…' : 'No foods found. Try a simpler word.'}</li>
+          ) : (
+            results.map((food) => (
+              <li key={food.key}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onPick(food);
+                    setQuery('');
+                  }}
+                  className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm hover:bg-sunken"
+                >
+                  <span className="min-w-0 truncate">{ur ? food.name_ur : food.name}</span>
+                  <span className="shrink-0 text-[13px] tabular text-muted">{Math.round(food.per_100g.kcal)} kcal / 100 g</span>
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 /** Shrinks the photo before upload: phone pictures are 3-8 MB, the model needs about 1000 px. */
@@ -116,7 +225,7 @@ function MealEditor({
 
   const total = lines.reduce(
     (acc, line) => {
-      const m = lineMacros(line, byKey);
+      const m = lineMacros(line);
       return { kcal: acc.kcal + m.kcal, protein_g: acc.protein_g + m.protein_g };
     },
     { kcal: 0, protein_g: 0 },
@@ -128,7 +237,7 @@ function MealEditor({
   function addFood(key: string) {
     const food = byKey.get(key);
     if (!food) return;
-    setLines((all) => [...all, { food_key: key, quantity: 1, unit: food.units[0].label }]);
+    setLines((all) => [...all, lineFromFood(food)]);
     setAdding('');
   }
 
@@ -138,7 +247,21 @@ function MealEditor({
     try {
       await api('/ai/meals', {
         method: 'POST',
-        body: { source: initial.source, items: lines.map(({ food_key, quantity, unit }) => ({ food_key, quantity, unit })) },
+        body: {
+          source: initial.source,
+          items: lines.map((line) => {
+            const custom = line.food_key.includes(':');
+            return {
+              food_key: line.food_key,
+              quantity: line.quantity,
+              unit: line.unit,
+              unit_grams: line.unit === 'serving' ? line.units.find((u) => u.label === 'serving')?.grams : undefined,
+              name: custom ? line.name : undefined,
+              name_ur: custom ? line.name_ur : undefined,
+              per_100g: line.food_key.startsWith('est:') ? line.per_100g : undefined,
+            };
+          }),
+        },
       });
       toast('Meal saved');
       onSaved();
@@ -165,24 +288,24 @@ function MealEditor({
         {initial.notice && <p className="rounded-control bg-sunken px-3 py-2 text-sm text-muted">{initial.notice}</p>}
         {initial.others.length > 0 && (
           <p className="text-sm text-muted">
-            Not in our food list yet: <span className="text-ink">{initial.others.join(', ')}</span>. Add the closest match below.
+            Couldn’t work out calories for: <span className="text-ink">{initial.others.join(', ')}</span>. Search for them below.
           </p>
         )}
 
         {lines.length > 0 ? (
           <ul className="divide-y divide-line rounded-card border border-line">
             {lines.map((line, index) => {
-              const food = byKey.get(line.food_key);
-              if (!food) return null;
-              const m = lineMacros(line, byKey);
+              const food = { name: line.name, units: line.units };
+              const m = lineMacros(line);
               return (
                 <li key={`${line.food_key}-${index}`} className="flex flex-wrap items-center gap-3 px-3 py-3">
                   <div className="min-w-0 flex-1 basis-40">
-                    <p className="truncate text-[15px] font-medium">{ur ? food.name_ur : food.name}</p>
+                    <p className="truncate text-[15px] font-medium">{ur ? line.name_ur || line.name : line.name}</p>
                     <p className="text-[13px] tabular text-muted">
                       {Math.round(m.kcal)} kcal · {m.protein_g.toFixed(1)} g protein
+                      {line.estimated && <span> · {ur ? 'andaza' : 'estimate'}</span>}
                       {line.confidence !== undefined && line.confidence !== null && line.confidence < 0.5 && (
-                        <span className="text-accent"> · check this one</span>
+                        <span className="text-accent"> · {ur ? 'check karein' : 'check this one'}</span>
                       )}
                     </p>
                   </div>
@@ -215,12 +338,12 @@ function MealEditor({
                       >
                         {food.units.map((u) => (
                           <option key={u.label} value={u.label}>
-                            {ur ? u.label_ur : u.label}
+                            {unitLabel(u, ur)}
                           </option>
                         ))}
                       </Select>
                     ) : (
-                      <span className="w-[104px] text-[13px] text-muted">{ur ? food.units[0].label_ur : food.units[0].label}</span>
+                      <span className="w-[104px] truncate text-[13px] text-muted">{unitLabel(food.units[0], ur)}</span>
                     )}
                     <button
                       onClick={() => setLines((all) => all.filter((_, i) => i !== index))}
@@ -239,13 +362,14 @@ function MealEditor({
         )}
 
         <Select aria-label="Add a food" value={adding} onChange={(e) => addFood(e.target.value)}>
-          <option value="">+ Add a food…</option>
+          <option value="">{ur ? '+ Desi khana add karein…' : '+ Add a desi food…'}</option>
           {foods.map((f) => (
             <option key={f.key} value={f.key}>
               {ur ? `${f.name_ur} (${f.name})` : f.name}
             </option>
           ))}
         </Select>
+        <FoodSearch onPick={(food) => setLines((all) => [...all, lineFromFood(food)])} />
 
         <div className="flex items-center justify-between rounded-control bg-sunken px-3 py-2.5 text-sm">
           <span className="text-muted">This meal</span>
@@ -384,7 +508,7 @@ export default function FoodPage() {
       });
       setEditor({
         key: Date.now(),
-        lines: result.items.map((i) => ({ food_key: i.food_key, quantity: i.quantity, unit: i.unit, confidence: i.confidence })),
+        lines: result.items.map((i) => lineFromItem(i, new Map((foods.data ?? []).map((f) => [f.key, f])))),
         preview: photo.preview,
         source: 'photo',
         notice: !result.is_food

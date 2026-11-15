@@ -18,12 +18,49 @@ from app.modules.user_profile.infrastructure.repositories import UserProfileRepo
 MAX_IMAGE_BYTES = 4 * 1024 * 1024
 
 
-def _item(food: food_table.Food, quantity: float, unit_label: Optional[str], confidence: Optional[float] = None) -> MealItem:
-    unit = food.unit(unit_label)
+SERVING = "serving"
+
+
+def _num(value, low: float, high: float) -> Optional[float]:
+    try:
+        return min(high, max(low, float(value)))
+    except (TypeError, ValueError):
+        return None
+
+
+def _units(food: food_table.Food, unit_grams: Optional[float]) -> List[food_table.FoodUnit]:
+    """The food's own units, with a 'serving' of the photo-estimated weight first when there is one."""
+    units = list(food.units)
+    if unit_grams:
+        units.insert(0, food_table.FoodUnit(SERVING, SERVING, round(unit_grams)))
+    return units
+
+
+def _item(food: food_table.Food, quantity: float, unit_label: Optional[str], confidence: Optional[float] = None,
+          unit_grams: Optional[float] = None, name: Optional[str] = None, name_ur: Optional[str] = None,
+          estimated: bool = False) -> MealItem:
+    units = _units(food, unit_grams if unit_label in (None, SERVING) else None)
+    unit = next((u for u in units if u.label == unit_label), units[0])
     grams = round(quantity * unit.grams, 1)
+    desi = not (food.key.startswith("usda:") or food.key.startswith("est:"))
     return MealItem(
-        food_key=food.key, name=food.name, name_ur=food.name_ur, quantity=quantity, unit=unit.label,
-        unit_ur=unit.label_ur, grams=grams, confidence=confidence, **food.macros(grams),
+        food_key=food.key, name=(name if name and not desi else food.name),
+        name_ur=(name_ur or name if (name_ur or name) and not desi else food.name_ur),
+        quantity=quantity, unit=unit.label, unit_ur=unit.label_ur, grams=grams, confidence=confidence,
+        estimated=estimated, unit_grams=unit.grams if unit.label == SERVING else None,
+        per_100g={"kcal": food.kcal, "protein_g": food.protein_g, "carbs_g": food.carbs_g, "fat_g": food.fat_g},
+        units=[{"label": u.label, "label_ur": u.label_ur, "grams": u.grams} for u in units],
+        **food.macros(grams),
+    )
+
+
+def _estimate(name: str, per_100g: dict) -> food_table.Food:
+    """A food in neither table, priced from the AI's per-100 g estimate."""
+    slug = "-".join(name.lower().split())[:50] or "food"
+    return food_table.Food(
+        key=f"est:{slug}", name=name, name_ur=name, aliases=(), kcal=per_100g["kcal"],
+        protein_g=per_100g["protein_g"], carbs_g=per_100g["carbs_g"], fat_g=per_100g["fat_g"],
+        units=(food_table.FoodUnit("100 g", "100 g", 100.0),),
     )
 
 
@@ -59,11 +96,29 @@ class MealSnapService:
     def build_items(items_in: List[MealItemIn]) -> List[MealItem]:
         built = []
         for item in items_in:
-            food = food_table.get_food(item.food_key)
+            estimated = item.food_key.startswith("est:")
+            if estimated:
+                if not item.per_100g or not item.name:
+                    raise HTTPException(status.HTTP_400_BAD_REQUEST, f"{item.food_key} needs a name and per_100g.")
+                food = _estimate(item.name, item.per_100g.model_dump())
+            else:
+                food = food_table.get_food(item.food_key)
             if not food:
                 raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Unknown food: {item.food_key}")
-            built.append(_item(food, item.quantity, item.unit))
+            built.append(_item(food, item.quantity, item.unit, unit_grams=item.unit_grams, name=item.name,
+                               name_ur=item.name_ur, estimated=estimated))
         return built
+
+    @staticmethod
+    def search_foods(query: str) -> List[FoodResponse]:
+        return [
+            FoodResponse(
+                key=f.key, name=f.name, name_ur=f.name_ur, aliases=list(f.aliases),
+                units=[{"label": u.label, "label_ur": u.label_ur, "grams": u.grams} for u in f.units],
+                per_100g={"kcal": f.kcal, "protein_g": f.protein_g, "carbs_g": f.carbs_g, "fat_g": f.fat_g},
+            )
+            for f in food_table.search(query)
+        ]
 
     # Photo -------------------------------------------------------------------------------------------------------
 
@@ -82,20 +137,38 @@ class MealSnapService:
         except vision.VisionFailed as error:
             raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(error))
 
-        items, seen = [], set()
+        items, seen, unpriced = [], set(), []
         for raw in result["items"]:
+            name = str(raw.get("name") or "").strip()[:80]
+            name_ur = str(raw.get("name_ur") or "").strip()[:80] or None
+            grams = _num(raw.get("grams"), 5, 1500)
+            confidence = _num(raw.get("confidence"), 0, 1)
+            confidence = round(confidence, 2) if confidence is not None else None
             food = food_table.get_food(str(raw.get("food_key", "")))
-            try:
-                quantity = round(float(raw.get("quantity", 0)) * 2) / 2  # nearest half unit
-            except (TypeError, ValueError):
+            if food and not food.key.startswith("usda:"):  # one of our desi foods: count in its household unit
+                quantity = _num(raw.get("quantity"), 0, 20)
+                quantity = round((quantity or 0) * 2) / 2
+                if quantity <= 0 or food.key in seen:
+                    continue
+                seen.add(food.key)
+                items.append(_item(food, quantity, None, confidence))
                 continue
-            if not food or quantity <= 0 or food.key in seen:
+            if not name or name.lower() in seen or not grams:
                 continue
-            seen.add(food.key)
-            confidence = raw.get("confidence")
-            items.append(_item(food, min(quantity, 20), None,
-                               round(float(confidence), 2) if isinstance(confidence, (int, float)) else None))
-        return AnalyzeResponse(is_food=result["is_food"], items=items, other_foods=result["other_foods"][:5])
+            seen.add(name.lower())
+            match = food_table.match(str(raw.get("usda_name") or "")) or food_table.match(name)
+            if match:  # priced from the USDA table, one 'serving' of the estimated weight
+                items.append(_item(match, 1, SERVING, confidence, unit_grams=grams, name=name, name_ur=name_ur))
+                continue
+            per_100g = {k: _num(raw.get(f"{src}_100g"), 0, 900 if k == "kcal" else 100)
+                        for k, src in (("kcal", "kcal"), ("protein_g", "protein"), ("carbs_g", "carbs"), ("fat_g", "fat"))}
+            if per_100g["kcal"] is None:
+                unpriced.append(name)
+                continue
+            per_100g = {k: v or 0.0 for k, v in per_100g.items()}
+            items.append(_item(_estimate(name, per_100g), grams / 100, None, confidence, name=name,
+                               name_ur=name_ur, estimated=True))
+        return AnalyzeResponse(is_food=result["is_food"], items=items[:20], other_foods=unpriced[:5])
 
     # Meals -------------------------------------------------------------------------------------------------------
 

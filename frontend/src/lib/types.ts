@@ -173,6 +173,10 @@ export type MealItem = {
   carbs_g: number;
   fat_g: number;
   confidence?: number | null;
+  estimated?: boolean;
+  unit_grams?: number | null;
+  per_100g?: Food['per_100g'] | null;
+  units?: FoodUnit[];
 };
 
 export type Meal = {
