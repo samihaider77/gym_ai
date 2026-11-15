@@ -147,3 +147,51 @@ export type UserProfile = {
   activity_level: string | null;
   experience_level: string | null;
 };
+
+// Meal Snap (food photo -> macros from the desi food table)
+export type FoodUnit = { label: string; label_ur: string; grams: number };
+
+export type Food = {
+  key: string;
+  name: string;
+  name_ur: string;
+  aliases: string[];
+  units: FoodUnit[];
+  per_100g: { kcal: number; protein_g: number; carbs_g: number; fat_g: number };
+};
+
+export type MealItem = {
+  food_key: string;
+  name: string;
+  name_ur: string;
+  quantity: number;
+  unit: string;
+  unit_ur: string;
+  grams: number;
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  confidence?: number | null;
+};
+
+export type Meal = {
+  id: string;
+  eaten_at: string;
+  source: 'photo' | 'manual';
+  items: MealItem[];
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+};
+
+export type MealDay = {
+  meals: Meal[];
+  totals: { kcal: number; protein_g: number; carbs_g: number; fat_g: number };
+  targets: { kcal: number; protein_g: number } | null;
+  tip: { en: string; ur: string };
+  photo_recognition: boolean;
+};
+
+export type MealAnalysis = { is_food: boolean; items: MealItem[]; other_foods: string[] };

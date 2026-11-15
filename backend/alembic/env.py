@@ -24,6 +24,7 @@ from app.modules.workout_exercises.infrastructure.models import WorkoutExerciseM
 from app.modules.workout_sessions.infrastructure.models import WorkoutSessionModel  # noqa: F401
 from app.modules.workout_logs.infrastructure.models import WorkoutLogModel  # noqa: F401
 from app.modules.progress.infrastructure.models import BodyProgressModel  # noqa: F401
+from app.modules.ai_coach.infrastructure.models import MealLogModel  # noqa: F401
 
 # Alembic Config object
 config = context.config

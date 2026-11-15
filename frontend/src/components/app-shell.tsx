@@ -8,6 +8,7 @@ import {
   Barbell,
   ChartLineUp,
   ClipboardText,
+  ForkKnife,
   House,
   SignOut,
   UserCircle,
@@ -24,6 +25,7 @@ const NAV: { href: string; label: string; icon: Icon }[] = [
   { href: '/dashboard', label: 'Home', icon: House },
   { href: '/exercises', label: 'Exercises', icon: Barbell },
   { href: '/workouts', label: 'Workouts', icon: ClipboardText },
+  { href: '/food', label: 'Food', icon: ForkKnife },
   { href: '/progress', label: 'Progress', icon: ChartLineUp },
   { href: '/profile', label: 'Profile', icon: UserCircle },
 ];
@@ -138,7 +140,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile tab bar */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
         aria-label="Main"
       >
         {NAV.map(({ href, label, icon: NavIcon }) => {

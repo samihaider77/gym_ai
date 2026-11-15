@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "gym_ai_db"
     DATABASE_URL: Union[str, None] = None
 
+    # Meal Snap photo recognition (Google Gemini API). Without a key the Food page still works with manual entry.
+    GEMINI_API_KEY: Union[str, None] = None
+    GEMINI_MODEL: str = "gemini-flash-lite-latest"
+
     def get_database_url(self) -> str:
         if self.DATABASE_URL:
             return self.DATABASE_URL

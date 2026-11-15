@@ -1,0 +1,938 @@
+{
+ "source": "USDA FoodData Central, FNDDS 2021-2023 (public domain). Built by scripts/build_desi_foods.py.",
+ "foods": [
+  {
+   "key": "roti",
+   "name": "Roti (chapati)",
+   "name_ur": "Roti",
+   "aliases": [
+    "chapati",
+    "phulka"
+   ],
+   "per_100g": {
+    "kcal": 299.0,
+    "protein_g": 7.8,
+    "carbs_g": 46.1,
+    "fat_g": 9.2
+   },
+   "units": [
+    {
+     "label": "roti",
+     "label_ur": "roti",
+     "grams": 40
+    }
+   ],
+   "source": {
+    "fdc_id": 2707713,
+    "description": "Bread, chappatti or roti"
+   }
+  },
+  {
+   "key": "paratha",
+   "name": "Paratha",
+   "name_ur": "Paratha",
+   "aliases": [
+    "parantha"
+   ],
+   "per_100g": {
+    "kcal": 326.0,
+    "protein_g": 6.4,
+    "carbs_g": 45.4,
+    "fat_g": 13.2
+   },
+   "units": [
+    {
+     "label": "paratha",
+     "label_ur": "paratha",
+     "grams": 70
+    }
+   ],
+   "source": {
+    "fdc_id": 2707715,
+    "description": "Bread, paratha"
+   }
+  },
+  {
+   "key": "naan",
+   "name": "Naan",
+   "name_ur": "Naan",
+   "aliases": [
+    "nan",
+    "roghni naan"
+   ],
+   "per_100g": {
+    "kcal": 311.0,
+    "protein_g": 11.1,
+    "carbs_g": 50.2,
+    "fat_g": 7.3
+   },
+   "units": [
+    {
+     "label": "naan",
+     "label_ur": "naan",
+     "grams": 177
+    }
+   ],
+   "source": {
+    "fdc_id": 2707613,
+    "description": "Bread, naan"
+   }
+  },
+  {
+   "key": "rice",
+   "name": "Plain rice",
+   "name_ur": "Saada chawal",
+   "aliases": [
+    "boiled rice",
+    "chawal"
+   ],
+   "per_100g": {
+    "kcal": 129.0,
+    "protein_g": 2.7,
+    "carbs_g": 28.0,
+    "fat_g": 0.3
+   },
+   "units": [
+    {
+     "label": "plate",
+     "label_ur": "plate",
+     "grams": 237
+    },
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 118
+    }
+   ],
+   "source": {
+    "fdc_id": 2708408,
+    "description": "Rice, white, cooked, no added fat"
+   }
+  },
+  {
+   "key": "pulao",
+   "name": "Pulao",
+   "name_ur": "Pulao",
+   "aliases": [
+    "yakhni pulao",
+    "rice pilaf"
+   ],
+   "per_100g": {
+    "kcal": 137.0,
+    "protein_g": 3.3,
+    "carbs_g": 24.1,
+    "fat_g": 3.0
+   },
+   "units": [
+    {
+     "label": "plate",
+     "label_ur": "plate",
+     "grams": 309
+    },
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 154
+    }
+   ],
+   "source": {
+    "fdc_id": 2709077,
+    "description": "Rice pilaf"
+   }
+  },
+  {
+   "key": "chicken_biryani",
+   "name": "Chicken biryani",
+   "name_ur": "Chicken biryani",
+   "aliases": [
+    "biryani"
+   ],
+   "per_100g": {
+    "kcal": 104.0,
+    "protein_g": 7.2,
+    "carbs_g": 13.6,
+    "fat_g": 2.4
+   },
+   "units": [
+    {
+     "label": "plate",
+     "label_ur": "plate",
+     "grams": 294
+    },
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 147
+    }
+   ],
+   "source": {
+    "fdc_id": 2706538,
+    "description": "Biryani with chicken"
+   }
+  },
+  {
+   "key": "meat_biryani",
+   "name": "Beef or mutton biryani",
+   "name_ur": "Gosht biryani",
+   "aliases": [
+    "mutton biryani",
+    "beef biryani"
+   ],
+   "per_100g": {
+    "kcal": 145.0,
+    "protein_g": 8.5,
+    "carbs_g": 12.2,
+    "fat_g": 6.8
+   },
+   "units": [
+    {
+     "label": "plate",
+     "label_ur": "plate",
+     "grams": 294
+    },
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 147
+    }
+   ],
+   "source": {
+    "fdc_id": 2706490,
+    "description": "Biryani with meat"
+   }
+  },
+  {
+   "key": "daal",
+   "name": "Daal (lentil curry)",
+   "name_ur": "Daal",
+   "aliases": [
+    "dal",
+    "daal masoor",
+    "daal mash",
+    "daal chana"
+   ],
+   "per_100g": {
+    "kcal": 111.0,
+    "protein_g": 3.7,
+    "carbs_g": 12.3,
+    "fat_g": 5.7
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2707431,
+    "description": "Lentil curry"
+   }
+  },
+  {
+   "key": "chana",
+   "name": "Chana (chickpeas)",
+   "name_ur": "Chanay",
+   "aliases": [
+    "cholay",
+    "chana masala"
+   ],
+   "per_100g": {
+    "kcal": 211.0,
+    "protein_g": 8.2,
+    "carbs_g": 25.5,
+    "fat_g": 8.9
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 139
+    }
+   ],
+   "source": {
+    "fdc_id": 2707415,
+    "description": "Chickpeas, from dried, fat added"
+   }
+  },
+  {
+   "key": "chicken_curry",
+   "name": "Chicken curry / karahi",
+   "name_ur": "Chicken salan / karahi",
+   "aliases": [
+    "chicken karahi",
+    "chicken qorma",
+    "chicken salan"
+   ],
+   "per_100g": {
+    "kcal": 107.0,
+    "protein_g": 6.5,
+    "carbs_g": 6.5,
+    "fat_g": 6.5
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2706437,
+    "description": "Chicken curry"
+   }
+  },
+  {
+   "key": "beef_curry",
+   "name": "Beef or mutton curry",
+   "name_ur": "Gosht ka salan",
+   "aliases": [
+    "aloo gosht",
+    "qorma",
+    "nihari",
+    "mutton karahi"
+   ],
+   "per_100g": {
+    "kcal": 113.0,
+    "protein_g": 7.6,
+    "carbs_g": 6.5,
+    "fat_g": 6.6
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2706388,
+    "description": "Beef curry"
+   }
+  },
+  {
+   "key": "fish_curry",
+   "name": "Fish curry",
+   "name_ur": "Machli ka salan",
+   "aliases": [
+    "machli"
+   ],
+   "per_100g": {
+    "kcal": 93.0,
+    "protein_g": 4.9,
+    "carbs_g": 6.7,
+    "fat_g": 5.4
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2706460,
+    "description": "Fish curry"
+   }
+  },
+  {
+   "key": "sabzi",
+   "name": "Vegetable curry",
+   "name_ur": "Sabzi",
+   "aliases": [
+    "aloo gobi",
+    "mix sabzi",
+    "aloo matar"
+   ],
+   "per_100g": {
+    "kcal": 86.0,
+    "protein_g": 1.6,
+    "carbs_g": 8.8,
+    "fat_g": 5.3
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2710067,
+    "description": "Vegetable curry"
+   }
+  },
+  {
+   "key": "bhindi",
+   "name": "Bhindi (okra)",
+   "name_ur": "Bhindi",
+   "aliases": [
+    "okra"
+   ],
+   "per_100g": {
+    "kcal": 59.0,
+    "protein_g": 2.0,
+    "carbs_g": 7.8,
+    "fat_g": 2.9
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 124
+    }
+   ],
+   "source": {
+    "fdc_id": 2709947,
+    "description": "Okra, fresh, cooked, fat added"
+   }
+  },
+  {
+   "key": "palak_paneer",
+   "name": "Palak paneer",
+   "name_ur": "Palak paneer",
+   "aliases": [
+    "saag paneer"
+   ],
+   "per_100g": {
+    "kcal": 101.0,
+    "protein_g": 5.4,
+    "carbs_g": 4.3,
+    "fat_g": 7.0
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 150
+    }
+   ],
+   "source": {
+    "fdc_id": 2709631,
+    "description": "Palak Paneer"
+   }
+  },
+  {
+   "key": "chicken_tikka",
+   "name": "Chicken tikka / grilled chicken",
+   "name_ur": "Chicken tikka",
+   "aliases": [
+    "tandoori chicken",
+    "bbq chicken",
+    "grilled chicken"
+   ],
+   "per_100g": {
+    "kcal": 179.0,
+    "protein_g": 26.7,
+    "carbs_g": 0.0,
+    "fat_g": 7.2
+   },
+   "units": [
+    {
+     "label": "piece",
+     "label_ur": "piece",
+     "grams": 100
+    }
+   ],
+   "source": {
+    "fdc_id": 2705943,
+    "description": "Chicken, NS as to part, grilled without sauce, skin not eaten"
+   }
+  },
+  {
+   "key": "chicken_breast",
+   "name": "Chicken breast",
+   "name_ur": "Chicken breast",
+   "aliases": [
+    "boiled chicken"
+   ],
+   "per_100g": {
+    "kcal": 161.0,
+    "protein_g": 30.2,
+    "carbs_g": 0.0,
+    "fat_g": 3.5
+   },
+   "units": [
+    {
+     "label": "100 g",
+     "label_ur": "100 g",
+     "grams": 100
+    }
+   ],
+   "source": {
+    "fdc_id": 2705956,
+    "description": "Chicken breast, baked, broiled, or roasted, skin not eaten, from raw"
+   }
+  },
+  {
+   "key": "kabab",
+   "name": "Kabab (beef)",
+   "name_ur": "Kabab",
+   "aliases": [
+    "seekh kabab",
+    "shami kabab",
+    "chapli kabab"
+   ],
+   "per_100g": {
+    "kcal": 272.0,
+    "protein_g": 25.4,
+    "carbs_g": 0.0,
+    "fat_g": 18.2
+   },
+   "units": [
+    {
+     "label": "kabab",
+     "label_ur": "kabab",
+     "grams": 60
+    }
+   ],
+   "source": {
+    "fdc_id": 2705855,
+    "description": "Beef, ground, patty"
+   }
+  },
+  {
+   "key": "samosa",
+   "name": "Samosa",
+   "name_ur": "Samosa",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 310.0,
+    "protein_g": 5.1,
+    "carbs_g": 33.2,
+    "fat_g": 17.5
+   },
+   "units": [
+    {
+     "label": "samosa",
+     "label_ur": "samosa",
+     "grams": 100
+    }
+   ],
+   "source": {
+    "fdc_id": 2708730,
+    "description": "Samosa"
+   }
+  },
+  {
+   "key": "pakora",
+   "name": "Pakora",
+   "name_ur": "Pakora",
+   "aliases": [
+    "pakoray"
+   ],
+   "per_100g": {
+    "kcal": 125.0,
+    "protein_g": 4.9,
+    "carbs_g": 16.2,
+    "fat_g": 4.8
+   },
+   "units": [
+    {
+     "label": "pakora",
+     "label_ur": "pakora",
+     "grams": 12
+    }
+   ],
+   "source": {
+    "fdc_id": 2710066,
+    "description": "Pakora"
+   }
+  },
+  {
+   "key": "egg_boiled",
+   "name": "Boiled egg",
+   "name_ur": "Ubla anda",
+   "aliases": [
+    "anda"
+   ],
+   "per_100g": {
+    "kcal": 143.0,
+    "protein_g": 12.4,
+    "carbs_g": 1.0,
+    "fat_g": 10.0
+   },
+   "units": [
+    {
+     "label": "egg",
+     "label_ur": "anda",
+     "grams": 50
+    }
+   ],
+   "source": {
+    "fdc_id": 2707154,
+    "description": "Egg, whole, boiled or poached"
+   }
+  },
+  {
+   "key": "egg_fried",
+   "name": "Fried egg",
+   "name_ur": "Fried anda",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 192.0,
+    "protein_g": 11.6,
+    "carbs_g": 0.9,
+    "fat_g": 15.8
+   },
+   "units": [
+    {
+     "label": "egg",
+     "label_ur": "anda",
+     "grams": 55
+    }
+   ],
+   "source": {
+    "fdc_id": 2707158,
+    "description": "Egg, whole, fried with oil"
+   }
+  },
+  {
+   "key": "omelette",
+   "name": "Omelette",
+   "name_ur": "Omelette",
+   "aliases": [
+    "anda bhurji"
+   ],
+   "per_100g": {
+    "kcal": 192.0,
+    "protein_g": 11.6,
+    "carbs_g": 0.9,
+    "fat_g": 15.8
+   },
+   "units": [
+    {
+     "label": "2-egg omelette",
+     "label_ur": "2 anday ka omelette",
+     "grams": 110
+    }
+   ],
+   "source": {
+    "fdc_id": 2707200,
+    "description": "Egg omelet or scrambled egg, made with oil"
+   }
+  },
+  {
+   "key": "dahi",
+   "name": "Dahi (plain yogurt)",
+   "name_ur": "Dahi",
+   "aliases": [
+    "yogurt",
+    "raita"
+   ],
+   "per_100g": {
+    "kcal": 78.0,
+    "protein_g": 3.8,
+    "carbs_g": 5.6,
+    "fat_g": 4.5
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 184
+    }
+   ],
+   "source": {
+    "fdc_id": 2705418,
+    "description": "Yogurt, whole milk, plain"
+   }
+  },
+  {
+   "key": "milk",
+   "name": "Milk",
+   "name_ur": "Doodh",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 61.0,
+    "protein_g": 3.3,
+    "carbs_g": 4.6,
+    "fat_g": 3.2
+   },
+   "units": [
+    {
+     "label": "glass",
+     "label_ur": "glass",
+     "grams": 244
+    }
+   ],
+   "source": {
+    "fdc_id": 2705385,
+    "description": "Milk, whole"
+   }
+  },
+  {
+   "key": "chai",
+   "name": "Chai (milk tea with sugar)",
+   "name_ur": "Chai",
+   "aliases": [
+    "doodh patti",
+    "tea"
+   ],
+   "per_100g": {
+    "kcal": 49.7,
+    "protein_g": 1.6,
+    "carbs_g": 7.4,
+    "fat_g": 1.5
+   },
+   "units": [
+    {
+     "label": "cup",
+     "label_ur": "cup",
+     "grams": 158
+    }
+   ],
+   "source": {
+    "recipe": [
+     {
+      "fdc_id": 2705385,
+      "description": "Milk, whole",
+      "grams": 75
+     },
+     {
+      "fdc_id": 2710488,
+      "description": "Tea, hot, leaf, black",
+      "grams": 75
+     },
+     {
+      "fdc_id": 2710258,
+      "description": "Sugar, white, granulated or lump",
+      "grams": 8
+     }
+    ]
+   }
+  },
+  {
+   "key": "lassi",
+   "name": "Sweet lassi",
+   "name_ur": "Meethi lassi",
+   "aliases": [
+    "lassi"
+   ],
+   "per_100g": {
+    "kcal": 102.8,
+    "protein_g": 3.5,
+    "carbs_g": 12.8,
+    "fat_g": 4.2
+   },
+   "units": [
+    {
+     "label": "glass",
+     "label_ur": "glass",
+     "grams": 195
+    }
+   ],
+   "source": {
+    "recipe": [
+     {
+      "fdc_id": 2705418,
+      "description": "Yogurt, whole milk, plain",
+      "grams": 180
+     },
+     {
+      "fdc_id": 2710258,
+      "description": "Sugar, white, granulated or lump",
+      "grams": 15
+     }
+    ]
+   }
+  },
+  {
+   "key": "kheer",
+   "name": "Kheer / firni",
+   "name_ur": "Kheer",
+   "aliases": [
+    "firni"
+   ],
+   "per_100g": {
+    "kcal": 144.0,
+    "protein_g": 3.6,
+    "carbs_g": 25.1,
+    "fat_g": 3.1
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 195
+    }
+   ],
+   "source": {
+    "fdc_id": 2705686,
+    "description": "Firni, Indian pudding"
+   }
+  },
+  {
+   "key": "mithai",
+   "name": "Mithai (barfi)",
+   "name_ur": "Mithai",
+   "aliases": [
+    "barfi",
+    "burfi"
+   ],
+   "per_100g": {
+    "kcal": 284.0,
+    "protein_g": 5.4,
+    "carbs_g": 40.4,
+    "fat_g": 11.4
+   },
+   "units": [
+    {
+     "label": "piece",
+     "label_ur": "piece",
+     "grams": 45
+    }
+   ],
+   "source": {
+    "fdc_id": 2705700,
+    "description": "Barfi or Burfi, Indian dessert"
+   }
+  },
+  {
+   "key": "bread",
+   "name": "White bread",
+   "name_ur": "Double roti",
+   "aliases": [
+    "toast",
+    "bread slice"
+   ],
+   "per_100g": {
+    "kcal": 267.0,
+    "protein_g": 9.4,
+    "carbs_g": 49.2,
+    "fat_g": 3.6
+   },
+   "units": [
+    {
+     "label": "slice",
+     "label_ur": "slice",
+     "grams": 28
+    }
+   ],
+   "source": {
+    "fdc_id": 2707598,
+    "description": "Bread, white"
+   }
+  },
+  {
+   "key": "oats",
+   "name": "Oats with milk",
+   "name_ur": "Oats",
+   "aliases": [
+    "oatmeal",
+    "daliya"
+   ],
+   "per_100g": {
+    "kcal": 116.0,
+    "protein_g": 5.6,
+    "carbs_g": 16.2,
+    "fat_g": 3.2
+   },
+   "units": [
+    {
+     "label": "katori",
+     "label_ur": "katori",
+     "grams": 180
+    }
+   ],
+   "source": {
+    "fdc_id": 2708383,
+    "description": "Oatmeal, regular or quick, made with milk, no added fat"
+   }
+  },
+  {
+   "key": "peanut_butter",
+   "name": "Peanut butter",
+   "name_ur": "Peanut butter",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 598.0,
+    "protein_g": 22.2,
+    "carbs_g": 22.3,
+    "fat_g": 51.4
+   },
+   "units": [
+    {
+     "label": "tablespoon",
+     "label_ur": "chamach",
+     "grams": 16
+    }
+   ],
+   "source": {
+    "fdc_id": 2707537,
+    "description": "Peanut butter"
+   }
+  },
+  {
+   "key": "whey",
+   "name": "Whey protein shake (water)",
+   "name_ur": "Whey protein",
+   "aliases": [
+    "protein shake"
+   ],
+   "per_100g": {
+    "kcal": 352.0,
+    "protein_g": 78.1,
+    "carbs_g": 6.2,
+    "fat_g": 1.6
+   },
+   "units": [
+    {
+     "label": "scoop",
+     "label_ur": "scoop",
+     "grams": 30
+    }
+   ],
+   "source": {
+    "fdc_id": 2710742,
+    "description": "Nutritional powder mix, whey based, NFS"
+   }
+  },
+  {
+   "key": "banana",
+   "name": "Banana",
+   "name_ur": "Kela",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 97.0,
+    "protein_g": 0.7,
+    "carbs_g": 22.7,
+    "fat_g": 0.3
+   },
+   "units": [
+    {
+     "label": "banana",
+     "label_ur": "kela",
+     "grams": 126
+    }
+   ],
+   "source": {
+    "fdc_id": 2709224,
+    "description": "Banana, raw"
+   }
+  },
+  {
+   "key": "apple",
+   "name": "Apple",
+   "name_ur": "Saib",
+   "aliases": [],
+   "per_100g": {
+    "kcal": 61.0,
+    "protein_g": 0.2,
+    "carbs_g": 14.8,
+    "fat_g": 0.1
+   },
+   "units": [
+    {
+     "label": "apple",
+     "label_ur": "saib",
+     "grams": 200
+    }
+   ],
+   "source": {
+    "fdc_id": 2709215,
+    "description": "Apple, raw"
+   }
+  }
+ ]
+}
