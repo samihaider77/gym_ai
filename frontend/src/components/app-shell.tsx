@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="mt-auto border-t border-line pt-4">
           {/* Preferences: exercise language and theme on one row */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-end gap-2">
             <LanguageToggle className="flex-1" />
             <ThemeToggle className="bg-sunken" />
           </div>
