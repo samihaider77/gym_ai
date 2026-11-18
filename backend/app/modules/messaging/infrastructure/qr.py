@@ -10,4 +10,4 @@ except ImportError:  # optional: without it the app shows the code and an "Open 
 def svg(text: str) -> Optional[str]:
     if segno is None:
         return None
-    return segno.make(text, error="m").svg_inline(scale=6, border=2, dark="#14213D", light="#ffffff")
+    return segno.make(text, error="m").svg_inline(scale=6, border=2, omitsize=True, dark="#14213D", light="#ffffff")
