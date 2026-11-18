@@ -73,6 +73,14 @@ Photos and voice notes get a "coming soon" reply. They are Level 3 (Meal Snap an
 
 7. Run `alembic upgrade head` against the production database.
 
+If messages reach WhatsApp but no reply comes (and the backend log shows no POST to the webhook), check:
+
+- The **`messages`** webhook field is subscribed. A saved callback URL alone isn't enough.
+- The app is subscribed to the WhatsApp Business Account. New apps may only have Meta's "WA DevX Webhook Events"
+  test app there. Fix it with `POST https://graph.facebook.com/<version>/<WABA id>/subscribed_apps`, using the
+  access token as the Bearer token. The WABA id is the "Messaging account ID" in Step 1.
+- The sender is one of the (up to 5) numbers in the test number's "To" list.
+
 The Profile card says "Coming soon" until `WHATSAPP_BOT_NUMBER` is set.
 
 To go live for everyone, you need a number that isn't already on WhatsApp, Meta Business verification, an approved
