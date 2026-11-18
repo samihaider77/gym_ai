@@ -53,6 +53,15 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Union[str, None] = None
     GEMINI_MODEL: str = "gemini-flash-lite-latest"
 
+    # WhatsApp Coach (Meta WhatsApp Cloud API). Without WHATSAPP_TOKEN replies are logged instead of sent, and
+    # without WHATSAPP_APP_SECRET the webhook rejects every message.
+    WHATSAPP_TOKEN: Union[str, None] = None
+    WHATSAPP_PHONE_NUMBER_ID: Union[str, None] = None
+    WHATSAPP_APP_SECRET: Union[str, None] = None
+    WHATSAPP_VERIFY_TOKEN: Union[str, None] = None
+    WHATSAPP_BOT_NUMBER: Union[str, None] = None  # digits only, with country code, e.g. 923001234567
+    WHATSAPP_API_VERSION: str = "v23.0"
+
     def get_database_url(self) -> str:
         if self.DATABASE_URL:
             return self.DATABASE_URL

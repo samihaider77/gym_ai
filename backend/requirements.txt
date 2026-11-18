@@ -10,3 +10,4 @@ pyjwt>=2.8.0
 passlib[bcrypt]>=1.7.4
 bcrypt>=4.0.0
 psycopg[binary]>=3.1
+segno>=1.6  # QR code for linking WhatsApp (pure Python)

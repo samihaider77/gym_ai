@@ -199,3 +199,21 @@ export type MealDay = {
 };
 
 export type MealAnalysis = { is_food: boolean; items: MealItem[]; other_foods: string[] };
+
+// WhatsApp Coach -------------------------------------------------------------------------------------------------
+
+export interface ChatLinkStatus {
+  linked: boolean;
+  last4: string | null;
+  linked_at: string | null;
+  language: string | null;
+  bot_ready: boolean;
+}
+
+export interface ChatLinkCode {
+  code: string;
+  message: string;
+  expires_at: string;
+  wa_link: string | null;
+  qr_svg: string | null;
+}

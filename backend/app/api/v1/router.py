@@ -13,6 +13,7 @@ from app.modules.workout_sessions.presentation.routes import router as workout_s
 from app.modules.workout_logs.presentation.routes import router as workout_logs_router
 from app.modules.progress.presentation.routes import router as progress_router
 from app.modules.ai_coach.presentation.routes import router as ai_coach_router
+from app.modules.messaging.presentation.routes import router as messaging_router
 
 api_router = APIRouter()
 
@@ -31,3 +32,4 @@ api_router.include_router(workout_sessions_router, prefix="/workout-sessions", t
 api_router.include_router(workout_logs_router, prefix="", tags=["Workout Logs"])
 api_router.include_router(progress_router, prefix="/progress", tags=["Body Progress"])
 api_router.include_router(ai_coach_router, prefix="/ai", tags=["AI Coach: Meal Snap"])
+api_router.include_router(messaging_router, prefix="/messaging", tags=["WhatsApp Coach"])

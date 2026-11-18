@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ErrorNotice, Skeleton } from '@/components/ui/feedback';
 import { Field, Input, Select } from '@/components/ui/field';
 import { useToast } from '@/components/ui/toast';
+import { WhatsAppConnect } from '@/components/whatsapp-connect';
 import { ApiError, api, session } from '@/lib/api';
 import type { User, UserProfile } from '@/lib/types';
 import { titleCase } from '@/lib/utils';
@@ -97,7 +98,7 @@ function ProfileForm() {
       )}
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <Reveal>
+        <Reveal className="flex flex-col gap-6">
           <Panel className="p-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-lg font-semibold text-accent">
               {(user?.first_name?.[0] ?? '') + (user?.last_name?.[0] ?? '')}
@@ -106,6 +107,7 @@ function ProfileForm() {
             <p className="text-sm text-muted">{user?.email}</p>
             {user && <p className="mt-4 text-[13px] text-faint">Member since {new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</p>}
           </Panel>
+          <WhatsAppConnect />
         </Reveal>
 
         <Reveal delay={0.06}>

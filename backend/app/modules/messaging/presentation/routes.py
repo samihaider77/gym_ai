@@ -1,0 +1,68 @@
+import json
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import PlainTextResponse
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.core.db.session import get_db
+from app.core.logging import logger
+from app.modules.auth.presentation.dependencies import get_current_user
+from app.modules.messaging.application.dtos import LinkCode, LinkCodeRequest, LinkStatus
+from app.modules.messaging.application.services import ChatService
+from app.modules.messaging.infrastructure import whatsapp
+from app.modules.users.infrastructure.models import UserModel
+
+router = APIRouter()
+
+
+# In the app (signed-in member) -----------------------------------------------------------------------------------
+
+@router.get("/link", response_model=LinkStatus, summary="Is WhatsApp connected?")
+def link_status(current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    return ChatService(db).status(current_user.id)
+
+
+@router.post("/link", response_model=LinkCode, summary="New one-time code and QR for connecting WhatsApp")
+def create_link_code(body: LinkCodeRequest, current_user: UserModel = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    return ChatService(db).create_code(current_user.id, body.language, body.utc_offset_minutes)
+
+
+@router.delete("/link", status_code=status.HTTP_204_NO_CONTENT, summary="Disconnect WhatsApp")
+def unlink(current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    ChatService(db).unlink(current_user.id)
+
+
+# Meta's webhook (no user token: checked with the app secret instead) --------------------------------------------
+
+@router.get("/whatsapp/webhook", response_class=PlainTextResponse, include_in_schema=False)
+def verify_webhook(
+    mode: str = Query("", alias="hub.mode"),
+    token: str = Query("", alias="hub.verify_token"),
+    challenge: str = Query("", alias="hub.challenge"),
+):
+    """One-time handshake when the webhook URL is saved in the Meta app dashboard."""
+    if mode == "subscribe" and settings.WHATSAPP_VERIFY_TOKEN and token == settings.WHATSAPP_VERIFY_TOKEN:
+        return challenge
+    raise HTTPException(status.HTTP_403_FORBIDDEN, "Verification failed.")
+
+
+@router.post("/whatsapp/webhook", include_in_schema=False)
+async def receive_webhook(request: Request, db: Session = Depends(get_db)):
+    body = await request.body()
+    if not whatsapp.signature_ok(body, request.headers.get("X-Hub-Signature-256")):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Bad signature.")
+    try:
+        payload = json.loads(body)
+    except ValueError:
+        return {"ok": True}
+    service = ChatService(db)
+    for message in whatsapp.parse(payload):
+        try:
+            reply = service.handle(message.sender, message.message_id, message.kind, message.text)
+            if reply:
+                whatsapp.send(message.sender, reply.text, reply.buttons)
+        except Exception:  # answer 200 anyway, or Meta keeps retrying the same message
+            logger.exception("WhatsApp message %s failed", message.message_id)
+            db.rollback()
+    return {"ok": True}

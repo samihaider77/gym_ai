@@ -1,0 +1,319 @@
+<title>WhatsApp Coach Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~760px) with wide tables in their own scrollers; a phone-chat mock beside the verdict on desktop, stacked on phones. */
+:root {
+  --bg: #ffffff;
+  --surface: #f6f7fa;
+  --line: #e2e5ec;
+  --ink: #14213D;
+  --muted: #5b6478;
+  --accent: #FF6B5B;
+  --accent-ink: #c2412f;
+  --good: #1d8a5b;
+  --warn: #b26a00;
+  --bad: #c0362c;
+  --chat-bg: #efeae2;
+  --bubble-in: #ffffff;
+  --bubble-out: #d9fdd3;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1424; --surface: #161e33; --line: #26304a; --ink: #e8ecf5; --muted: #9aa4bb;
+    --accent: #ff7f71; --accent-ink: #ff9a8f; --good: #4cc38a; --warn: #f0a640; --bad: #ff6b60;
+    --chat-bg: #0b141a; --bubble-in: #202c33; --bubble-out: #005c4b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1424; --surface: #161e33; --line: #26304a; --ink: #e8ecf5; --muted: #9aa4bb;
+  --accent: #ff7f71; --accent-ink: #ff9a8f; --good: #4cc38a; --warn: #f0a640; --bad: #ff6b60;
+  --chat-bg: #0b141a; --bubble-in: #202c33; --bubble-out: #005c4b; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15.5px; line-height: 1.6; }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -0.01em; }
+h2 { font-size: 24px; margin-bottom: 12px; }
+h3 { font-size: 17px; margin-bottom: 6px; }
+p { margin: 0; max-width: 68ch; }
+section { display: flex; flex-direction: column; gap: 14px; padding-top: 44px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ink); }
+.lede { font-size: 18px; color: var(--muted); }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+a { color: var(--accent-ink); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; }
+.hero > div { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.verdict { border-left: 4px solid var(--good); padding: 4px 0 4px 16px; display: flex; flex-direction: column; gap: 6px; }
+.verdict strong { font-family: var(--display); font-size: 19px; }
+ul.tight { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; max-width: 68ch; }
+
+/* phone chat mock */
+.phone { background: var(--chat-bg); border: 1px solid var(--line); border-radius: 22px; padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; line-height: 1.45; }
+.phone .head { font-family: var(--display); font-weight: 600; font-size: 14px; padding: 2px 4px 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.phone .head span { color: var(--muted); font-family: var(--body); font-weight: 400; font-size: 12px; }
+.b { max-width: 86%; padding: 7px 10px; border-radius: 10px; white-space: pre-line; color: var(--ink); }
+.b.in { background: var(--bubble-out); align-self: flex-end; border-top-right-radius: 3px; }
+.b.out { background: var(--bubble-in); align-self: flex-start; border-top-left-radius: 3px; }
+.b .t { display: block; text-align: right; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+/* tables */
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.pick td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid currentColor; }
+.pill.good { color: var(--good); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
+
+/* levels */
+.levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.level { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.level.rec { border-color: var(--accent); }
+.level .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.level .lvl { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.level dl { margin: 0; display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 4px 10px; font-size: 14px; }
+.level dt { color: var(--muted); }
+.level dd { margin: 0; }
+
+.callout { background: var(--surface); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.math { font-family: var(--mono); font-size: 13.5px; background: var(--surface); border-radius: 10px; padding: 14px 16px; overflow-x: auto; white-space: pre; line-height: 1.7; }
+pre.mermaid { background: var(--surface); border-radius: 12px; padding: 16px; overflow-x: auto; }
+
+.phases { display: flex; flex-direction: column; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+.phase { position: relative; padding: 0 0 22px 22px; display: flex; flex-direction: column; gap: 4px; }
+.phase::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+.phase .when { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sources { font-size: 13.5px; color: var(--muted); }
+.sources ul { padding-left: 20px; margin: 0; display: flex; flex-direction: column; gap: 3px; }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .levels { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+
+<div class="hero">
+  <div>
+    <span class="eyebrow">LiftAndPlate · feature plan · 18 Nov 2026</span>
+    <h1>Coach on WhatsApp</h1>
+    <p class="lede">Members link their WhatsApp number once. After that they can ask for today's workout, their diet targets, or send a meal photo straight from WhatsApp, without opening the app.</p>
+    <div class="verdict">
+      <strong>Yes, it is possible, and the official way is free to start.</strong>
+      <p>Use Meta's WhatsApp Cloud API. Each business number gets <b>1,000 free reply messages a month</b>. That covers testing and roughly the first 20 active members. After that, each reply costs about <b>US$0.015 in Pakistan</b>. Most messages need no AI. When AI is needed, it uses free models with a fallback chain: Gemini, then OpenRouter <code>:free</code>, then Groq.</p>
+    </div>
+    <ul class="tight">
+      <li><b>Recommended path:</b> build Level 2 (command bot) first, then Level 3 (AI chat and meal photos).</li>
+      <li><b>Telegram:</b> build the chat core so it doesn't depend on WhatsApp. A Telegram bot then comes almost free and costs nothing per message.</li>
+      <li><b>Avoid unofficial WhatsApp libraries</b> (WhatsApp Web clones). They break WhatsApp's terms and the number gets banned.</li>
+    </ul>
+  </div>
+  <div class="phone" aria-label="Example WhatsApp conversation">
+    <div class="head">LiftAndPlate Coach <span>example chat</span></div>
+    <div class="b in">today<span class="t">7:02</span></div>
+    <div class="b out">Push day, Week 3 💪
+1. Bench press 4×8 @ 60 kg
+2. Incline DB press 3×10
+3. Shoulder press 3×10
+4. Lateral raise 3×15
+5. Triceps pushdown 3×12
+Reply "done 1 60x8 60x8…" to log sets.<span class="t">7:02</span></div>
+    <div class="b in">aaj kitna protein khana hai?<span class="t">7:03</span></div>
+    <div class="b out">Aaj ka target: 144 g protein, 3,040 kcal.
+Abhi tak: 0 g. Nashtay mein 3 anday + 1 glass doodh = ~27 g.<span class="t">7:03</span></div>
+    <div class="b in">📷 [meal photo]<span class="t">13:40</span></div>
+    <div class="b out">Chicken karahi 1 katori, roti ×2, salad.
+≈ 720 kcal · 41 g protein.
+Reply "save" to log it.<span class="t">13:40</span></div>
+  </div>
+</div>
+
+<section>
+  <span class="eyebrow">Options by complexity</span>
+  <h2>Four levels, each built on the one before</h2>
+  <div class="levels">
+    <div class="level">
+      <div class="top"><h3>Share to WhatsApp</h3><span class="lvl">Level 1</span></div>
+      <p>A "Send to my WhatsApp" button in the app opens WhatsApp with today's plan already typed. The member sends it to themselves or their gym group.</p>
+      <dl><dt>Cost</dt><dd><span class="pill good">Free</span> no Meta account</dd><dt>Effort</dt><dd>~1 day</dd><dt>AI</dt><dd>None</dd><dt>Limit</dt><dd>One-way. The app can't read replies.</dd></dl>
+    </div>
+    <div class="level rec">
+      <div class="top"><h3>Command bot</h3><span class="lvl">Level 2 · build first</span></div>
+      <p>Official Cloud API bot. Understands short commands in English or Roman Urdu: <code>today</code>, <code>diet</code>, <code>done</code>, <code>weight 78</code>, <code>week</code>, <code>help</code>. It reads and writes the same workouts and logs as the app.</p>
+      <dl><dt>Cost</dt><dd><span class="pill good">Free</span> up to 1,000 replies a month</dd><dt>Effort</dt><dd>~1–1.5 weeks</dd><dt>AI</dt><dd>None needed</dd><dt>Limit</dt><dd>Fixed commands only</dd></dl>
+    </div>
+    <div class="level rec">
+      <div class="top"><h3>AI coach chat</h3><span class="lvl">Level 3 · next</span></div>
+      <p>Free-text questions ("knee hurts, swap squats?") go to a free LLM. The LLM uses tools that call our own services, so answers come from the member's real plan. Meal photos run through Meal Snap. Voice notes are transcribed by Gemini.</p>
+      <dl><dt>Cost</dt><dd><span class="pill good">Free AI</span> + same WhatsApp limits</dd><dt>Effort</dt><dd>~1.5–2 weeks</dd><dt>AI</dt><dd>Free model chain (below)</dd><dt>Limit</dt><dd>Free tiers have daily caps</dd></dl>
+    </div>
+    <div class="level">
+      <div class="top"><h3>Proactive coach</h3><span class="lvl">Level 4 · gym plan</span></div>
+      <p>The bot messages first: a morning workout reminder, "you missed Tuesday", weekly progress. These need Meta-approved <i>templates</i>, and every template is billed, even inside the 24-hour window.</p>
+      <dl><dt>Cost</dt><dd><span class="pill warn">Paid</span> ~$0.015 per reminder in PK</dd><dt>Effort</dt><dd>~1 week</dd><dt>AI</dt><dd>Optional</dd><dt>Limit</dt><dd>Templates need Meta approval</dd></dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Channels</span>
+  <h2>Ways to reach WhatsApp, compared</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Route</th><th>Cost</th><th>Allowed?</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr class="pick"><td><b>Meta WhatsApp Cloud API</b> (direct, no middleman)</td><td class="num">1,000 replies/month free per number, then ~$0.015 each (PK)</td><td><span class="pill good">Official</span></td><td>Use this. The test number is free for development and can message up to 5 of your own numbers.</td></tr>
+      <tr><td>Twilio / Wati / Gupshup (BSPs)</td><td class="num">Meta fee + their markup or monthly plan</td><td><span class="pill good">Official</span></td><td>Easier dashboards, but you pay twice. Not needed.</td></tr>
+      <tr><td>Telegram Bot API</td><td class="num">Free, no per-message fee</td><td><span class="pill good">Official</span></td><td>Good second channel. Same core code, about one day of extra work.</td></tr>
+      <tr><td>Unofficial libraries (Baileys, whatsapp-web.js)</td><td class="num">Free</td><td><span class="pill bad">Breaks terms</span></td><td>Number gets banned, and gyms can't rely on it. Don't use.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">What "free" really means</span>
+  <h2>WhatsApp cost, worked out</h2>
+  <p>Meta changed its prices on <b>1 October 2026</b>. Replies to a member who wrote in the last 24 hours ("service messages") used to be unlimited and free. Now each number gets 1,000 free a month and pays the utility rate after that. Messages members send to us are always free.</p>
+  <div class="math">Typical active member: 3 questions × 4 gym days × ~4 weeks ≈ 50 replies/month
+Free allowance:      1,000 ÷ 50                          ≈ 20 active members free
+Above that:          50 × $0.015                         ≈ $0.75 per member per month
+Morning reminder:    1 template × ~20 days × $0.015       ≈ $0.30 per member per month</div>
+  <p>Two ways to keep it low:</p>
+  <ul class="tight">
+    <li><b>One rich reply instead of several short ones.</b> The whole day's plan goes in one message.</li>
+    <li><b>Interactive buttons and lists</b> ("Log set", "Swap exercise", "Tomorrow"). Members tap instead of typing, which means fewer follow-up messages.</li>
+  </ul>
+  <p>For the gym-owner model, about $1 per member per month fits inside a paid "AI coach" add-on.</p>
+</section>
+
+<section>
+  <span class="eyebrow">AI, kept free</span>
+  <h2>Most messages never touch an LLM</h2>
+  <p>A plain router handles about 80% of messages, such as <code>today</code>, <code>diet</code>, <code>done</code>, <code>weight 78</code> and button taps, straight from the database. That is instant, free and never wrong. Only free text goes to an LLM. The LLM calls our own functions (<code>get_today_workout</code>, <code>get_day_nutrition</code>, <code>log_set</code>, <code>log_meal</code>, <code>swap_exercise</code>), so it can't invent a plan the member doesn't have.</p>
+  <p>All providers below speak the same OpenAI-style chat API. One small client tries them in order and moves to the next on a quota or timeout error.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Order</th><th>Provider</th><th>Free limit (approx.)</th><th>Use it for</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Google Gemini</b> (key already in <code>backend/.env</code>)</td><td>Daily free quota on flash-lite</td><td>Chat, meal photos, voice notes</td><td>Already working in Meal Snap. Only provider here that handles images and audio.</td></tr>
+      <tr><td class="num">2</td><td><b>OpenRouter</b> <code>:free</code> models (DeepSeek, Llama, Qwen…)</td><td class="num">20/min; 50/day, or 1,000/day after a one-time $10 credit top-up</td><td>Text chat fallback</td><td>The $10 is never spent on free models; it only raises the daily cap.</td></tr>
+      <tr><td class="num">3</td><td><b>Groq</b> free tier (Llama, Qwen)</td><td>Per-minute and per-day caps</td><td>Fast text fallback</td><td>Very fast replies.</td></tr>
+      <tr><td class="num">dev</td><td><b>NVIDIA build.nvidia.com</b> (incl. MiniMax where listed)</td><td class="num">~40/min, starter credits</td><td>Testing and comparing models</td><td>Free access is for development, not production. Don't rely on it in the live bot.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Daily limit per member (say 30 AI messages) protects the shared free quota. When every provider is out of quota, the bot replies with the command menu instead of failing.</p>
+</section>
+
+<section>
+  <span class="eyebrow">How it fits the app</span>
+  <h2>A new <code>messaging</code> module beside <code>ai_coach</code></h2>
+  <p>It follows the same Clean Architecture layout as the other backend modules and reuses existing services. Nothing in the web app changes except a "Connect WhatsApp" card on the Profile page.</p>
+  <pre class="mermaid">
+sequenceDiagram
+  participant M as Member (WhatsApp)
+  participant W as Meta Cloud API
+  participant B as FastAPI /api/v1/messaging
+  participant R as Router
+  participant S as Existing services
+  participant L as Free LLM chain
+  M->>W: "today" / photo / question
+  W->>B: POST /webhook (signed)
+  B->>B: check signature, skip duplicates, find linked user
+  B->>R: message
+  alt command or button
+    R->>S: workout plan / nutrition / log set
+  else photo
+    R->>S: Meal Snap analyze
+  else free text
+    R->>L: question + tools
+    L->>S: tool calls
+  end
+  R-->>B: reply text / buttons
+  B->>W: send message
+  W->>M: reply
+</pre>
+  <div class="scroll"><table>
+    <thead><tr><th>Piece</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /messaging/whatsapp/webhook</code></td><td>Meta's one-time verify handshake (verify token).</td></tr>
+      <tr><td><code>POST /messaging/whatsapp/webhook</code></td><td>Incoming messages. Checks the <code>X-Hub-Signature-256</code> header with the app secret, returns 200 quickly, and skips message IDs it has already handled.</td></tr>
+      <tr><td><code>POST /messaging/link</code> · <code>DELETE /messaging/link</code></td><td>Create a one-time link code (returns the code, its <code>wa.me</code> link for the QR, and its expiry), or disconnect. Signed-in user only.</td></tr>
+      <tr><td>Table <code>chat_link_codes</code></td><td>user_id, hashed code, expires_at, used_at. One active code per user; a new code cancels the old one.</td></tr>
+      <tr><td>Table <code>chat_links</code></td><td>user_id, channel (whatsapp / telegram), hashed phone or chat id, verified_at, opted_out_at, language.</td></tr>
+      <tr><td>Table <code>chat_messages</code></td><td>Message id (for duplicates), direction, intent, short text, created_at. Kept 30 days for debugging and to count usage against the daily limit.</td></tr>
+      <tr><td><code>infrastructure/whatsapp.py</code>, <code>telegram.py</code></td><td>Thin senders: text, buttons, list, media download. The router never knows which channel it is on.</td></tr>
+      <tr><td><code>infrastructure/llm.py</code></td><td>The provider chain above, with tool calling.</td></tr>
+      <tr><td>Env vars</td><td><code>WHATSAPP_TOKEN</code>, <code>WHATSAPP_PHONE_ID</code>, <code>WHATSAPP_APP_SECRET</code>, <code>WHATSAPP_VERIFY_TOKEN</code>, <code>OPENROUTER_API_KEY</code>, <code>GROQ_API_KEY</code>, <code>TELEGRAM_BOT_TOKEN</code>. These live only in <code>.env</code> and Vercel, never in git.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Linking and privacy</span>
+  <h2>Connect once, stop any time</h2>
+  <ul class="tight">
+    <li><b>Linking with a one-time QR code:</b> Profile → "Connect WhatsApp" shows a QR code made just for that member. It encodes <code>wa.me/&lt;bot number&gt;?text=LINK 482913</code>.
+      <ul class="tight">
+        <li><b>On a laptop:</b> the member scans the QR with their phone camera. WhatsApp opens with the message already typed, and they tap Send.</li>
+        <li><b>On a phone:</b> the same link shows as a "Open WhatsApp" button, because you can't scan your own screen.</li>
+        <li><b>One-time:</b> the code works once and expires after 10 minutes. After that the QR greys out and shows a "New code" button. Only a hash of the code is stored.</li>
+        <li><b>Safety:</b> the number is taken from the message itself, so a member never types it and we never guess it. Scanning someone else's QR links only the scanner's own number, and only to that account until the code is used. The member then sees "Linked to •••• 4821" in the app and can disconnect if it's wrong.</li>
+      </ul>
+    </li>
+    <li><b>Gym front desk (later):</b> each gym gets a printed QR for joining. It opens the app sign-up with the gym preselected, and the member then links WhatsApp with their own one-time QR.</li>
+    <li><b>Unknown numbers:</b> they get only a short "connect from the app" message and see no data.</li>
+    <li><b>Opting out:</b> <code>STOP</code> unlinks the number and stops all messages, as WhatsApp policy requires. The Profile page shows the link and a Disconnect button.</li>
+    <li><b>Data:</b> photos are not stored, the same as Meal Snap. Phone numbers are stored hashed, and only the last 4 digits are shown. Gym owners never see a member's chat text, only usage counts.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">Build order</span>
+  <h2>Phases</h2>
+  <div class="phases">
+    <div class="phase"><span class="when">Week 1</span><h3>Setup and linking</h3><p>Meta developer app with the free test number. Webhook verify and signature check. <code>chat_links</code> migration. Profile "Connect WhatsApp" card with a one-time QR code (drawn in the browser, so no QR service is needed). <code>LINK</code>, <code>STOP</code> and <code>help</code>.</p></div>
+    <div class="phase"><span class="when">Week 2</span><h3>Level 2 commands</h3><p><code>today</code>, <code>tomorrow</code>, <code>week</code>, <code>diet</code>, <code>done</code>/log set, <code>weight</code>, with Roman Urdu synonyms (<code>aaj</code>, <code>khana</code>). Reply buttons. Unit tests per command, the same style as <code>test_meal_snap.py</code>.</p></div>
+    <div class="phase"><span class="when">Week 3</span><h3>Meal photos</h3><p>Download the WhatsApp image, run the existing Meal Snap analysis, reply with the items, and log on "save". Voice note → Gemini transcription → the same router.</p></div>
+    <div class="phase"><span class="when">Week 4</span><h3>Level 3 AI chat</h3><p>LLM provider chain with tool calling, daily per-member cap, and a command-menu reply when all free quotas run out. Telegram channel on the same core.</p></div>
+    <div class="phase"><span class="when">Later</span><h3>Level 4 and gyms</h3><p>Meta Business verification. A gym-branded number per gym. Approved reminder templates. Usage counts in the admin panel so the gym owner can see what the add-on is worth.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Before going live</span>
+  <h2>What you need to set up</h2>
+  <ul class="tight">
+    <li>A Meta (Facebook) developer account and a WhatsApp Business app. The free test number is enough for building.</li>
+    <li>For real members: a phone number that isn't already on WhatsApp, Meta Business verification, and a payment method on the account. Without a payment method, replies stop once the 1,000 free ones are used.</li>
+    <li>A display name and profile picture approved by Meta (LiftAndPlate).</li>
+    <li>Free keys: OpenRouter and Groq, plus the Gemini key you already have.</li>
+  </ul>
+  <div class="callout">
+    <h3>Risks to keep in mind</h3>
+    <ul class="tight">
+      <li><b>Prices and free tiers change.</b> Meta changed prices twice in 2026, and free AI caps move often. Keep both behind small adapters so a provider can be swapped in a day.</li>
+      <li><b>Serverless timeouts.</b> Meta expects a fast 200 from the webhook. A photo analysis takes 5–20 s, so send "checking your photo…" first and do the work in the background, or move to a small always-on worker later.</li>
+      <li><b>Health advice.</b> The AI must not give medical advice. Pain or injury questions get a "see a doctor or your trainer" line plus a safe exercise swap.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="sources">
+  <span class="eyebrow">Sources (checked 18 Nov 2026)</span>
+  <ul>
+    <li><a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing">Meta: Pricing on the WhatsApp Business Platform</a>. 1,000 free service messages a month per number; billing changes from 1 Oct 2026.</li>
+    <li><a href="https://partner-docs.gupshup.io/changelog/october-2026">Gupshup changelog, Oct 2026</a> and <a href="https://propakistani.pk/2026/09/15/meta-charges-pakistan-11x-more-than-india-for-whatsapp-business-messages/">ProPakistani</a>. Pakistan utility rate $0.015.</li>
+    <li><a href="https://openrouter.ai/blog/tutorials/free-llm-apis-compared/">OpenRouter: free LLM APIs compared</a>. <code>:free</code> limits: 20/min, 50/day or 1,000/day.</li>
+    <li><a href="https://forums.developer.nvidia.com/t/is-nim-free/369368">NVIDIA developer forum</a>. Free NIM access is 40 RPM and for development only.</li>
+  </ul>
+</section>
+
+</div>
