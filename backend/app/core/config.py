@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     WHATSAPP_VERIFY_TOKEN: Union[str, None] = None
     WHATSAPP_BOT_NUMBER: Union[str, None] = None  # digits only, with country code, e.g. 923001234567
     WHATSAPP_API_VERSION: str = "v23.0"
+    # Unofficial gateway (whatsapp-gateway/, linked as a WhatsApp Web device). Shared secret for its signed calls.
+    WHATSAPP_GATEWAY_SECRET: Union[str, None] = None
 
     def get_database_url(self) -> str:
         if self.DATABASE_URL:

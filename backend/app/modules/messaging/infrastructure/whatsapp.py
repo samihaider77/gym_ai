@@ -36,6 +36,29 @@ def signature_ok(body: bytes, header: Optional[str]) -> bool:
     return hmac.compare_digest(expected, header[len("sha256="):])
 
 
+def gateway_ok(body: bytes, header: Optional[str]) -> bool:
+    """The unofficial gateway signs each call the same way, with WHATSAPP_GATEWAY_SECRET."""
+    secret = settings.WHATSAPP_GATEWAY_SECRET
+    if not secret or not header or not header.startswith("sha256="):
+        return False
+    expected = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, header[len("sha256="):])
+
+
+_URDU_WORDS = {"today": "aaj", "tomorrow": "kal", "week": "hafta", "diet": "khana"}
+
+
+def with_button_hint(text: str, buttons: Sequence[Tuple[str, str]], lang: str = "en") -> str:
+    """Plain-text version of reply buttons, for the gateway: WhatsApp Web devices can't send button messages.
+    Button ids are commands, so the member can type them."""
+    if not buttons:
+        return text[:TEXT_LIMIT]
+    label = "Bhejein" if lang == "ur" else "Send"
+    words = _URDU_WORDS if lang == "ur" else {}
+    hint = " · ".join(f"*{words.get(bid, bid)}*" for bid, _ in buttons)
+    return f"{text}\n\n👉 {label}: {hint}"[:TEXT_LIMIT]
+
+
 def parse(payload: dict) -> List[Incoming]:
     """Messages in a webhook payload. Status updates (sent, delivered, read) are ignored."""
     found = []

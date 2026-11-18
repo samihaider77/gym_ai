@@ -1,6 +1,8 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import PlainTextResponse
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -8,7 +10,7 @@ from app.core.db.session import get_db
 from app.core.logging import logger
 from app.modules.auth.presentation.dependencies import get_current_user
 from app.modules.messaging.application.dtos import LinkCode, LinkCodeRequest, LinkStatus
-from app.modules.messaging.application.services import ChatService
+from app.modules.messaging.application.services import CHANNEL, ChatService, address_hash
 from app.modules.messaging.infrastructure import whatsapp
 from app.modules.users.infrastructure.models import UserModel
 
@@ -66,3 +68,39 @@ async def receive_webhook(request: Request, db: Session = Depends(get_db)):
             logger.exception("WhatsApp message %s failed", message.message_id)
             db.rollback()
     return {"ok": True}
+
+
+# Unofficial gateway (whatsapp-gateway/, a linked WhatsApp Web device) ---------------------------------------------
+
+class GatewayMessage(BaseModel):
+    message_id: str = Field(min_length=1, max_length=200)
+    sender: str = Field(min_length=1, max_length=64)  # digits of the member's number (or a WhatsApp LID)
+    kind: str = Field(default="text", pattern="^(text|button|image|audio|other)$")
+    text: str = Field(default="", max_length=4000)
+
+
+@router.post("/gateway/incoming", include_in_schema=False)
+async def gateway_incoming(request: Request, db: Session = Depends(get_db)):
+    """The gateway posts each incoming chat message here and sends back the reply text it gets."""
+    body = await request.body()
+    if not whatsapp.gateway_ok(body, request.headers.get("X-Gateway-Signature")):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Bad signature.")
+    try:
+        message = GatewayMessage.model_validate_json(body)
+    except ValidationError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Bad message.")
+    return {"reply": await run_in_threadpool(_gateway_reply, db, message)}  # database work off the event loop
+
+
+def _gateway_reply(db: Session, message: GatewayMessage):
+    service = ChatService(db)
+    try:
+        reply = service.handle(message.sender, message.message_id, message.kind, message.text[:1000])
+        if not reply:
+            return None
+        link = service.repo.link_for_address(address_hash(message.sender), CHANNEL)
+    except Exception:
+        logger.exception("Gateway message %s failed", message.message_id)
+        db.rollback()
+        return None
+    return whatsapp.with_button_hint(reply.text, reply.buttons, link.language if link else "en")

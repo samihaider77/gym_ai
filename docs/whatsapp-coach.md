@@ -87,6 +87,41 @@ To go live for everyone, you need a number that isn't already on WhatsApp, Meta 
 display name ("LiftAndPlate"), and a payment method on the WhatsApp account. Each number gets 1,000 free replies a
 month; after that a reply costs about US$0.015 in Pakistan (Oct 2026 rates).
 
+## Unofficial gateway (no Meta account needed)
+
+`whatsapp-gateway/` links one ordinary WhatsApp number as a **linked device** (like WhatsApp Web) using the
+[Baileys](https://github.com/WhiskeySockets/Baileys) library. Use it while Meta Business verification is pending, or
+instead of the Cloud API. The member side (the link QR, commands and replies) works the same way.
+
+**Risk:** this isn't allowed by WhatsApp's terms, and WhatsApp can ban the bot's number. Members' numbers aren't at
+risk. Use a separate SIM, never a personal number. The gateway only answers messages people send it (no bulk or
+first-contact messages), marks them read, shows "typing…", replies at a human pace, and ignores a sender who sends
+more than 20 messages in a minute.
+
+How it works: the gateway receives a chat message → `POST /api/v1/messaging/gateway/incoming` (body signed with
+HMAC-SHA256 of `WHATSAPP_GATEWAY_SECRET` in `X-Gateway-Signature: sha256=<hex>`) → the backend answers with the reply
+text → the gateway sends it. Linked devices can't send button messages, so buttons become a "👉 Send: *today* ·
+*diet*" line of typed commands. Newer WhatsApp versions may hide the sender's number (a "LID"). The gateway then uses
+`lid:<id>` as the address, which still links fine through the code.
+
+Set up:
+
+1. Put WhatsApp (or WhatsApp Business) on the bot SIM, on a phone that comes online now and then.
+2. In `backend/.env` set `WHATSAPP_BOT_NUMBER` to that number (digits with country code, e.g. `923001234567`) and
+   `WHATSAPP_GATEWAY_SECRET` to a long random string. Restart the backend.
+3. In `whatsapp-gateway/`: copy `.env.example` to `.env`, set `GATEWAY_SECRET` to the same string and `BACKEND_URL`
+   to the backend's `/api/v1` URL, then run `npm install` and `npm start` (Node 20 or newer).
+4. Scan the QR from the terminal, or from http://127.0.0.1:3100/qr, with the bot phone: WhatsApp → Settings →
+   **Linked devices** → **Link a device**. The session is saved in `auth/`, so you scan only once.
+5. `GET /health` on the gateway shows `connected`. Unlinking from the phone shows a new QR.
+
+Hosting: it's a long-running process, so it can't run on Vercel. Use any always-on host (a small VPS, Railway or
+Fly.io) with `auth/` on a persistent disk. On a server set `HOST=0.0.0.0` and a `QR_PAGE_TOKEN`, then open
+`/qr?token=<token>`. Anyone who scans that QR takes over the bot, so keep the link private.
+
+When Meta verification comes through, the same number can move to the Cloud API: unlink the device, remove the
+number from WhatsApp on the phone, register it in the Meta app, and stop the gateway.
+
 ## Test locally without Meta
 
 `.claude/launch.json` has `backend-whatsapp-test`, which starts the API with a test app secret and a dummy bot

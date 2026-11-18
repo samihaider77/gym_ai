@@ -113,3 +113,25 @@ def test_chat_link_needs_the_bot_number(monkeypatch):
     assert whatsapp.chat_link("LINK 7KQ2-M9XD") is None
     monkeypatch.setattr(settings, "WHATSAPP_BOT_NUMBER", "+92 300 1234567")
     assert whatsapp.chat_link("LINK 7KQ2-M9XD") == "https://wa.me/923001234567?text=LINK%207KQ2-M9XD"
+
+
+def test_gateway_calls_must_be_signed_with_the_gateway_secret(monkeypatch):
+    body = b'{"message_id":"m1","sender":"923001234567","text":"today"}'
+    monkeypatch.setattr(settings, "WHATSAPP_GATEWAY_SECRET", None)
+    good = "sha256=" + hmac.new(b"gw-secret", body, hashlib.sha256).hexdigest()
+    assert not whatsapp.gateway_ok(body, good)  # no secret set: reject everything
+    monkeypatch.setattr(settings, "WHATSAPP_GATEWAY_SECRET", "gw-secret")
+    assert whatsapp.gateway_ok(body, good)
+    assert not whatsapp.gateway_ok(body + b" ", good)
+    assert not whatsapp.gateway_ok(body, None)
+
+
+def test_buttons_become_typed_commands_for_the_gateway():
+    buttons = replies.buttons("en", replies.WORKOUT)
+    text = whatsapp.with_button_hint("Hi", buttons, "en")
+    assert text.endswith("Send: *done* · *tomorrow* · *diet*")
+    assert all(cmd.parse(word).name != cmd.UNKNOWN for word in ("done", "tomorrow", "diet", "today", "week"))
+    urdu = whatsapp.with_button_hint("Salam", replies.buttons("ur", replies.MENU), "ur")
+    assert urdu.endswith("Bhejein: *aaj* · *khana* · *hafta*")
+    assert all(cmd.parse(word).name != cmd.UNKNOWN for word in ("aaj", "kal", "khana", "hafta"))
+    assert whatsapp.with_button_hint("Plain", (), "en") == "Plain"
